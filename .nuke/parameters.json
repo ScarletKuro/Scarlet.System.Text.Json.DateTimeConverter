@@ -1,0 +1,4 @@
+{
+  "$schema": "build.schema.json",
+  "Solution": "src/Scarlet.System.Text.Json.DateTimeConverter.sln"
+}
