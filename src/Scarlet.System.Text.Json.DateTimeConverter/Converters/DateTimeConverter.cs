@@ -7,7 +7,7 @@ namespace Scarlet.System.Text.Json.DateTimeConverter.Converters;
 /// <summary>
 /// Converts <see cref="DateTime"/> objects to and from JSON using a specified date format.
 /// </summary>
-internal class DateTimeConverter : JsonConverter<DateTime>
+internal sealed class DateTimeConverter : JsonConverter<DateTime>
 {
     private readonly string _format;
 

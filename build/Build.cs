@@ -21,17 +21,17 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     "continuous",
     GitHubActionsImage.UbuntuLatest,
     FetchDepth = 0,
-    On = new[] { GitHubActionsTrigger.Push },
+    On = [GitHubActionsTrigger.Push],
     PublishArtifacts = true,
-    InvokedTargets = new[] { nameof(Compile), nameof(Pack) })]
+    InvokedTargets = [nameof(Compile), nameof(Pack)])]
 [GitHubActions(
     "release",
     GitHubActionsImage.UbuntuLatest,
     FetchDepth = 0,
-    OnPushTags = new[] { @"\d+\.\d+\.\d+" },
+    OnPushTags = [@"\d+\.\d+\.\d+"],
     PublishArtifacts = true,
-    InvokedTargets = new[] { nameof(Push), nameof(PushGithubNuget) },
-    ImportSecrets = new[] { nameof(NuGetApiKey), nameof(PersonalAccessToken) })]
+    InvokedTargets = [nameof(Push), nameof(PushGithubNuget)],
+    ImportSecrets = [nameof(NugetKey), nameof(GithubToken)])]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
@@ -40,18 +40,18 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.Compile);
+    public static int Main() => Execute<Build>(x => x.Compile);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = Configuration.Release;
 
+    [Parameter] readonly string NugetApiUrl = "https://api.nuget.org/v3/index.json"; //default
+    [Parameter][Secret] readonly string NugetKey;
+    [Parameter][Secret] readonly string GithubToken;
 
-    [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json"; //default
+    bool RunFormatAnalyzers => false;
 
     bool IsTag => GitHubActions.Instance?.Ref?.StartsWith("refs/tags/") ?? false;
-
-    [Parameter][Secret] readonly string NuGetApiKey;
-    [Parameter][Secret] readonly string PersonalAccessToken;
 
     [Solution] readonly Solution Solution;
     [GitRepository] readonly GitRepository GitRepository;
@@ -78,8 +78,23 @@ class Build : NukeBuild
                 .SetProjectFile(Solution));
         });
 
+    Target VerifyFormat => _ => _
+        .After(Restore)
+        .Description("Verify code formatting for the solution.")
+        .Executes(() =>
+        {
+            DotNet($"format whitespace {Solution.Path} --verify-no-changes ");
+
+            DotNet($"format style {Solution.Path} --verify-no-changes ");
+
+            if (RunFormatAnalyzers)
+            {
+                DotNet($"format analyzers {Solution.Path} --verify-no-changes ");
+            }
+        });
+
     Target Compile => _ => _
-        .DependsOn(Restore)
+        .DependsOn(Restore, VerifyFormat)
         .Executes(() =>
         {
             DotNetBuild(s => s
@@ -93,7 +108,8 @@ class Build : NukeBuild
         .Produces(PackagesDirectory / "*.nupkg")
         .Produces(PackagesDirectory / "*.snupkg")
         .Requires(() => Configuration.Equals(Configuration.Release))
-        .Executes(() => {
+        .Executes(() =>
+        {
             DotNetPack(_ => _
                 .Apply(PackSettings));
 
@@ -104,13 +120,13 @@ class Build : NukeBuild
     Target Push => _ => _
         .DependsOn(Pack)
         .OnlyWhenStatic(() => IsTag && IsServerBuild)
-        .Requires(() => NuGetApiKey)
+        .Requires(() => NugetKey)
         .Requires(() => Configuration.Equals(Configuration.Release))
         .Executes(() =>
         {
             Log.Information("Running push to packages directory.");
 
-            Assert.True(!string.IsNullOrEmpty(NuGetApiKey));
+            Assert.True(!string.IsNullOrEmpty(NugetKey));
 
             PackagesDirectory.GlobFiles("*.nupkg")
                 .ForEach(x =>
@@ -120,7 +136,7 @@ class Build : NukeBuild
                     DotNetNuGetPush(s => s
                         .SetTargetPath(x)
                         .SetSource(NugetApiUrl)
-                        .SetApiKey(NuGetApiKey)
+                        .SetApiKey(NugetKey)
                         .EnableSkipDuplicate()
                     );
                 });
@@ -130,7 +146,7 @@ class Build : NukeBuild
     Target PushGithubNuget => _ => _
         .DependsOn(Pack)
         .OnlyWhenStatic(() => IsTag && IsServerBuild)
-        .Requires(() => PersonalAccessToken)
+        .Requires(() => GithubToken)
         .Requires(() => Configuration.Equals(Configuration.Release))
         .Executes(() =>
         {
@@ -141,12 +157,12 @@ class Build : NukeBuild
                 {
                     x.NotNull();
 
-                    Assert.True(!string.IsNullOrEmpty(PersonalAccessToken));
+                    Assert.True(!string.IsNullOrEmpty(GithubToken));
 
                     DotNetNuGetPush(s => s
                         .SetTargetPath(x)
                         .SetSource($"https://nuget.pkg.github.com/{GitHubActions.Instance.RepositoryOwner}/index.json")
-                        .SetApiKey(PersonalAccessToken)
+                        .SetApiKey(GithubToken)
                         .EnableSkipDuplicate()
                     );
                 });

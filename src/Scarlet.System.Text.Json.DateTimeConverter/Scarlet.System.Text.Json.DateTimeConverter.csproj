@@ -7,6 +7,12 @@
   </PropertyGroup>
   
   <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
+  
+  <PropertyGroup>
     <IsPackable>true</IsPackable>
     <Authors>ScarletKuro</Authors>
     <Description>A custom attribute for System.Text.Json that allows you to specify custom date formats for DateTime, DateTimeOffset, and their nullable counterparts during JSON serialization and deserialization. </Description>
@@ -32,6 +38,13 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup> 
+
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.146">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
