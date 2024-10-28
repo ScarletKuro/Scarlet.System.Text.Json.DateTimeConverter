@@ -19,7 +19,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter</RepositoryUrl>
     <PackageTags>SystemTextJson, STJ, DateTime, DateTimeOffset, JsonConverter, JsonConverterAttribute, JsonSerialization </PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -34,9 +35,16 @@
   </PropertyGroup> 
 
   <ItemGroup>
+    <None Include="..\..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\version.json">
+      <Pack>False</Pack>
     </None>
   </ItemGroup> 
 
