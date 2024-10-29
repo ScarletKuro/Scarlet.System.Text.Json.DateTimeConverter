@@ -23,9 +23,15 @@ Make sure you have the appropriate .NET target framework installed. This package
 
 ## Usage
 
-Examples of how to serialize and deserialize models with custom date formats using `JsonDateTimeConverter` and `JsonDateTimeFormatConverter`. Note the differences when using source generators with `System.Text.Json`.
+Examples of how to serialize and deserialize models with custom date formats using `JsonDateTimeConverter` attribute and `JsonDateTimeFormatConverter` converter. 
 
-### Using reflection based with `JsonDateTimeConverter`
+**Note:** The `JsonDateTimeConverter` attribute does not support `System.Text.Json` source generators. Using this attribute with `JsonSerializerContext` results in **SYSLIB1223**: "Attributes deriving from `JsonConverterAttribute` are not supported by the source generator."
+
+In such cases, use the `JsonDateTimeFormatConverter`, which also works with reflection-based serialization and deserialization. The `JsonDateTimeConverter` attribute is simply less verbose and more readable than the `JsonDateTimeFormatConverter`.
+
+### Using reflection based only with `JsonDateTimeConverter`
+
+This will work only with reflection-based serialization and deserialization.
 
 ```csharp
 public class MyModel
@@ -59,13 +65,10 @@ public class Program
 }
 ```
 
-**Note:** `JsonDateTimeConverter` does not support `System.Text.Json` source generators. Using this converter with `JsonSerializerContext` results in **SYSLIB1223**: "Attributes deriving from `JsonConverterAttribute` are not supported by the source generator." For such cases, use `JsonDateTimeFormatConverter`.
-
 ### Using Source Generators with `JsonDateTimeFormatConverter`
 
-To work with `System.Text.Json` source generators, use `JsonDateTimeFormatConverter` instead of `JsonDateTimeConverterAttribute`.
+To work with `System.Text.Json` source generators, use `JsonDateTimeFormatConverter` instead of `JsonDateTimeConverterAttribute`. This can also work with reflection-based serialization and deserialization.
 
-#### Example Model
 
 ```csharp
 public class MyModelSourceGenerator
