@@ -55,6 +55,7 @@
         "Push",
         "PushGithubNuget",
         "Restore",
+        "Test",
         "VerifyFormat"
       ]
     },

@@ -103,6 +103,22 @@ class Build : NukeBuild
                 .EnableNoRestore());
         });
 
+    Target Test => _ => _
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
+            var projects = Solution.GetAllProjects("*.Tests");
+
+            foreach (var project in projects)
+            {
+                DotNetTest(_ => _
+                    .SetProjectFile(project.Path)
+                    .SetConfiguration(Configuration)
+                    .EnableNoBuild()
+                );
+            }
+        });
+
     Target Pack => _ => _
         .After(Compile)
         .Produces(PackagesDirectory / "*.nupkg")
