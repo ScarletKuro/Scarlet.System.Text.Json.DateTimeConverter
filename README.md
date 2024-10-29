@@ -6,6 +6,9 @@
 The `JsonDateTimeConverterAttribute` allows you to specify a custom date format for `DateTime`, `DateTimeOffset`, and their nullable counterparts when serializing and deserializing JSON using `System.Text.Json`. This ensures consistency in how date and time values are handled across your application.
 
 ## Installation
+```bash
+dotnet add package Scarlet.System.Text.Json.DateTimeConverter
+```
 
 Ensure you have the necessary .NET target framework installed. This attribute is compatible with:
 - .NET 6
@@ -17,10 +20,6 @@ Ensure you have the necessary .NET target framework installed. This attribute is
 ### Example Model
 
 ```csharp
-using System;
-using System.Text.Json.Serialization;
-using Scarlet.System.Text.Json.DateTimeConverter;
-
 public class MyModel
 {
     [JsonDateTimeConverter("yyyy-MM-dd")]
@@ -34,9 +33,6 @@ public class MyModel
 ### Example Program
 
 ```csharp
-using System;
-using System.Text.Json;
-
 public class Program
 {
     public static void Main()
@@ -59,7 +55,64 @@ public class Program
 }
 ```
 
+### Source Generator Example
+
+If you are using source generators with `System.Text.Json`, you should use `JsonDateTimeFormatConverter` instead of `JsonDateTimeConverterAttribute`.
+
+#### Example Model
+
+```csharp
+public class MyModelSourceGenerator
+{
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<JsonDateTimeFormat.DateTimeFormat>))]
+    public DateTime Date { get; set; }
+
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<JsonDateTimeFormat.DateTimeOffsetFormat>))]
+    public DateTimeOffset DateTimeOffset { get; set; }
+}
+
+internal class JsonDateTimeFormat
+{
+    internal class DateTimeOffsetFormat : IJsonDateTimeFormat
+    {
+        public static string Format => "yyyy-MM-ddTHH:mm:ss.fffZ";
+    }
+    
+    internal class DateTimeFormat : IJsonDateTimeFormat
+    {
+        public static string Format => "yyyy-MM-ddTHH:mm:ss";
+    }
+}
+
+[JsonSerializable(typeof(MyModelSourceGenerator))]
+public sealed partial class MyModelSourceGeneratorJsonSerializerContext : JsonSerializerContext;
+
+public class Program
+{
+    public static void Main()
+    {
+        var modelType = typeof(MyModelSourceGenerator);
+        var model = new MyModelSourceGenerator
+        {
+            Date = DateTime.Now,
+            DateTimeOffset = DateTimeOffset.Now
+        };
+
+        var context = MyModelSourceGeneratorJsonSerializerContext.Default;
+
+        // Serialize
+        string jsonString = JsonSerializer.Serialize(model, modelType, context);
+        Console.WriteLine($"Serialized JSON: {jsonString}");
+
+        // Deserialize
+        var deserializedModel = (MyModelSourceGenerator?)JsonSerializer.Deserialize(jsonString, modelType, context);
+        Console.WriteLine($"Deserialized Date: {deserializedModel.Date}");
+        Console.WriteLine($"Deserialized DateTimeOffset: {deserializedModel.DateTimeOffset}");
+    }
+}
+```
+
 ## Notes
 
-- The `JsonDateTimeConverterAttribute` can be applied to properties of type `DateTime`, `DateTime?`, `DateTimeOffset`, and `DateTimeOffset?`.
+- The `JsonDateTimeConverterAttribute` and `JsonDateTimeFormatConverter` can be applied to properties of type `DateTime`, `DateTime?`, `DateTimeOffset`, and `DateTimeOffset?`.
 - The format string provided to the attribute should follow the standard date and time format strings in .NET.

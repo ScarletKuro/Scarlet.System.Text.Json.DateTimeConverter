@@ -5,8 +5,25 @@ namespace Scarlet.System.Text.Json.DateTimeConverter;
 /// <summary>
 /// Specifies that a <see cref="DateTime"/>, <see cref="DateTimeOffset"/> (including Nullables) should be converted using a custom date format.
 /// </summary>
+/// <remarks>
+/// This attribute does not work with `System.Text.Json` source generator. If you use it with <see cref="JsonSerializerContext"/>, you will get SYSLIB1223. 
+/// Attributes deriving from <see cref="JsonConverterAttribute"/> are not supported by the source generator. You should use the <see cref="JsonDateTimeFormatConverter{T}"/> instead.
+/// </remarks>
+/// <example>
+/// Example usage:
+/// <code>
+/// public class Model
+/// {
+///     [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss.fffZ")]
+///     public DateTimeOffset DateTimeOffsetProperty { get; set; }
+/// }
+/// </code>
+/// </example>
 public sealed class JsonDateTimeConverterAttribute : JsonConverterAttribute
 {
+    /// <summary>
+    /// The date format string.
+    /// </summary>
     public string Format { get; }
 
     /// <summary>
