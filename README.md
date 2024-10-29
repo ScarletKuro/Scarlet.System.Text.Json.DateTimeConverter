@@ -23,7 +23,9 @@ Make sure you have the appropriate .NET target framework installed. This package
 
 ## Usage
 
-### Example Model
+Examples of how to serialize and deserialize models with custom date formats using `JsonDateTimeConverter` and `JsonDateTimeFormatConverter`. Note the differences when using source generators with `System.Text.Json`.
+
+### Using reflection based with `JsonDateTimeConverter`
 
 ```csharp
 public class MyModel
@@ -34,11 +36,7 @@ public class MyModel
     [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss.fffZ")]
     public DateTimeOffset DateTimeOffset { get; set; }
 }
-```
 
-### Example Program
-
-```csharp
 public class Program
 {
     public static void Main()
@@ -61,9 +59,11 @@ public class Program
 }
 ```
 
-### Source Generator Example
+**Note:** `JsonDateTimeConverter` does not support `System.Text.Json` source generators. Using this converter with `JsonSerializerContext` results in **SYSLIB1223**: "Attributes deriving from `JsonConverterAttribute` are not supported by the source generator." For such cases, use `JsonDateTimeFormatConverter`.
 
-If you are using source generators with `System.Text.Json`, you should use `JsonDateTimeFormatConverter` instead of `JsonDateTimeConverterAttribute`.
+### Using Source Generators with `JsonDateTimeFormatConverter`
+
+To work with `System.Text.Json` source generators, use `JsonDateTimeFormatConverter` instead of `JsonDateTimeConverterAttribute`.
 
 #### Example Model
 
@@ -117,6 +117,9 @@ public class Program
     }
 }
 ```
+
+Unfortunately, there is no better way with the source generator than defining a class for each date-time format. This is because the `JsonConverterAttribute` is not supported by the source generator, and neither `JsonConverterFactory` nor `JsonConverter` allows passing the format string to the converter, as they lack constructors with parameters.
+The new contract customization does not provide attribute support for the source generator as well.
 
 ## Notes
 
