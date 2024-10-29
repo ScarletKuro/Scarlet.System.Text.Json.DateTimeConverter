@@ -3,14 +3,20 @@
 [![Nuget](https://img.shields.io/nuget/dt/Scarlet.System.Text.Json.DateTimeConverter?color=ff4081&label=nuget%20downloads&logo=nuget)](https://www.nuget.org/packages/Scarlet.System.Text.Json.DateTimeConverter)
 [![GitHub](https://img.shields.io/github/license/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter?color=594ae2&logo=github)](https://github.com/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter/blob/master/LICENSE)
 
-The `JsonDateTimeConverterAttribute` allows you to specify a custom date format for `DateTime`, `DateTimeOffset`, and their nullable counterparts when serializing and deserializing JSON using `System.Text.Json`. This ensures consistency in how date and time values are handled across your application.
+This package allows you to specify a custom date format for `DateTime`, `DateTimeOffset`, and their nullable counterparts when serializing and deserializing JSON using `System.Text.Json`.
 
 ## Installation
+
+To install the **Scarlet.System.Text.Json.DateTimeConverter** package, run the following command in your terminal:
+
 ```bash
 dotnet add package Scarlet.System.Text.Json.DateTimeConverter
 ```
 
-Ensure you have the necessary .NET target framework installed. This attribute is compatible with:
+### Prerequisites
+
+Make sure you have the appropriate .NET target framework installed. This package is compatible with the following versions:
+
 - .NET 6
 - .NET 7
 - .NET 8
