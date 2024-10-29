@@ -25,26 +25,8 @@ public sealed class JsonDateTimeConverterAttribute : JsonConverterAttribute
     {
         ArgumentNullException.ThrowIfNull(typeToConvert);
 
-        if (typeToConvert == typeof(DateTime))
-        {
-            return Converters.DateTimeConverter.FromFormat(Format);
-        }
+        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeToConvert, Format);
 
-        if (typeToConvert == typeof(DateTime?))
-        {
-            return Converters.DateTimeNullableConverter.FromFormat(Format);
-        }
-
-        if (typeToConvert == typeof(DateTimeOffset))
-        {
-            return Converters.DateTimeOffsetConverter.FromFormat(Format);
-        }
-
-        if (typeToConvert == typeof(DateTimeOffset?))
-        {
-            return Converters.DateTimeOffsetNullableConverter.FromFormat(Format);
-        }
-
-        throw new NotSupportedException($"{typeToConvert.FullName} is not supported by the {nameof(JsonDateTimeConverterAttribute)}.");
+        return converter;
     }
 }
