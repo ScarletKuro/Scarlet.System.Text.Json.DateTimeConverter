@@ -15,7 +15,7 @@ internal sealed class DateTimeOffsetConverter : JsonConverter<DateTimeOffset>
     /// Initializes a new instance of the <see cref="DateTimeOffsetConverter"/> class with the specified date format.
     /// </summary>
     /// <param name="format">The date format string.</param>
-    public DateTimeOffsetConverter(string format) => _format = format;
+    private DateTimeOffsetConverter(string format) => _format = format;
 
     /// <summary>
     /// Reads and converts the JSON to a <see cref="DateTimeOffset"/> object.
@@ -50,4 +50,6 @@ internal sealed class DateTimeOffsetConverter : JsonConverter<DateTimeOffset>
         var date = value.ToString(_format, CultureInfo.InvariantCulture);
         writer.WriteStringValue(date);
     }
+
+    public static DateTimeOffsetConverter FromFormat(string format) => new(format);
 }

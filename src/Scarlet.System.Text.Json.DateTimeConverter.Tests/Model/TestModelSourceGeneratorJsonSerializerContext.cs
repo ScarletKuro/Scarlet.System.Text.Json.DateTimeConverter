@@ -2,6 +2,6 @@
 
 namespace Scarlet.System.Text.Json.DateTimeConverter.Tests.Model;
 
-[JsonSerializable(typeof(TestModel))]
+[JsonSerializable(typeof(TestModelSourceGenerator))]
 [JsonSourceGenerationOptions(WriteIndented = true)]
-public sealed partial class TestModelJsonSerializerContext : JsonSerializerContext;
+public sealed partial class TestModelSourceGeneratorJsonSerializerContext : JsonSerializerContext;

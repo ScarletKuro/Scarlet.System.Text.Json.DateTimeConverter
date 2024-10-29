@@ -1,6 +1,6 @@
 ﻿namespace Scarlet.System.Text.Json.DateTimeConverter.Tests.Model;
 
-public class TestModel
+public class TestModelJsonDateTimeConverter
 {
     [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss")]
     public DateTime DateTimeProperty { get; set; }

@@ -15,7 +15,7 @@ internal sealed class DateTimeNullableConverter : JsonConverter<DateTime?>
     /// Initializes a new instance of the <see cref="DateTimeNullableConverter"/> class with the specified date format.
     /// </summary>
     /// <param name="format">The date format string.</param>
-    public DateTimeNullableConverter(string format) => _format = format;
+    private DateTimeNullableConverter(string format) => _format = format;
 
     /// <summary>
     /// Reads and converts the JSON to a nullable <see cref="DateTime"/> object.
@@ -62,4 +62,6 @@ internal sealed class DateTimeNullableConverter : JsonConverter<DateTime?>
             writer.WriteNullValue();
         }
     }
+
+    public static DateTimeNullableConverter FromFormat(string format) => new(format);
 }

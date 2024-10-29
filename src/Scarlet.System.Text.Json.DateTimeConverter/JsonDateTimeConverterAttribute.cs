@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using DateTime = System.DateTime;
 
 namespace Scarlet.System.Text.Json.DateTimeConverter;
 
@@ -28,22 +27,22 @@ public sealed class JsonDateTimeConverterAttribute : JsonConverterAttribute
 
         if (typeToConvert == typeof(DateTime))
         {
-            return new Converters.DateTimeConverter(Format);
+            return Converters.DateTimeConverter.FromFormat(Format);
         }
 
         if (typeToConvert == typeof(DateTime?))
         {
-            return new Converters.DateTimeNullableConverter(Format);
+            return Converters.DateTimeNullableConverter.FromFormat(Format);
         }
 
         if (typeToConvert == typeof(DateTimeOffset))
         {
-            return new Converters.DateTimeOffsetConverter(Format);
+            return Converters.DateTimeOffsetConverter.FromFormat(Format);
         }
 
         if (typeToConvert == typeof(DateTimeOffset?))
         {
-            return new Converters.DateTimeOffsetNullableConverter(Format);
+            return Converters.DateTimeOffsetNullableConverter.FromFormat(Format);
         }
 
         throw new NotSupportedException($"{typeToConvert.FullName} is not supported by the {nameof(JsonDateTimeConverterAttribute)}.");
