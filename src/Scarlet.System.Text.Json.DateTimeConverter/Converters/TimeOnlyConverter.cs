@@ -35,8 +35,15 @@ internal sealed class TimeOnlyConverter : JsonConverter<TimeOnly>
         }
 
         // Fallback to reading as DateTime and converting to TimeOnly
-        var dateTime = reader.GetDateTime();
-        return TimeOnly.FromDateTime(dateTime);
+        try
+        {
+            var dateTime = reader.GetDateTime();
+            return TimeOnly.FromDateTime(dateTime);
+        }
+        catch (Exception ex) when (ex is FormatException || ex is InvalidOperationException)
+        {
+            throw new JsonException($"Unable to convert token to TimeOnly using format '{_format}'.", ex);
+        }
     }
 
     /// <summary>

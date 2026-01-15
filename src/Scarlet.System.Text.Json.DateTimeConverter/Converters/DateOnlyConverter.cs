@@ -35,8 +35,15 @@ internal sealed class DateOnlyConverter : JsonConverter<DateOnly>
         }
 
         // Fallback to reading as DateTime and converting to DateOnly
-        var dateTime = reader.GetDateTime();
-        return DateOnly.FromDateTime(dateTime);
+        try
+        {
+            var dateTime = reader.GetDateTime();
+            return DateOnly.FromDateTime(dateTime);
+        }
+        catch (Exception ex) when (ex is FormatException || ex is InvalidOperationException)
+        {
+            throw new JsonException($"Unable to convert token to DateOnly using format '{_format}'.", ex);
+        }
     }
 
     /// <summary>
