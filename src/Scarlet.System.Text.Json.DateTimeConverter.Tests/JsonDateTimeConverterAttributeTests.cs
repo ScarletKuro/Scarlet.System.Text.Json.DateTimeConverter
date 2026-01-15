@@ -156,117 +156,6 @@ public class JsonDateTimeConverterAttributeTests
     }
 
     [Fact]
-    public void SourceGenerator_WithResolver_WithAttribute_UsingOptions()
-    {
-        // Arrange
-        var sourceGenOptions = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            TypeInfoResolver = new DateTimeConverterResolver(ResolverModelJsonSerializerContext.Default)
-        };
-        var originalModel = new SourceGeneratorWithResolverAttributeModel
-        {
-            DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
-            NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
-            DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero)
-        };
-        const string expectedJson = """
-                                    {
-                                      "DateTimeProperty": "2023-10-01T12:00:00",
-                                      "NullableDateTimeProperty": "2023-10-01T12:00:00",
-                                      "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z"
-                                    }
-                                    """;
-
-        // Act
-        var json = JsonSerializer.Serialize(originalModel, sourceGenOptions);
-        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorWithResolverAttributeModel>(json, sourceGenOptions);
-
-        // Assert
-        Assert.NotNull(deserializedModel);
-        Assert.Equal(originalModel.DateTimeProperty, deserializedModel.DateTimeProperty);
-        Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
-        Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
-        Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
-        Assert.Equal(expectedJson, json);
-    }
-
-    [Fact]
-    public void SourceGenerator_WithResolver_WithAttribute_UsingContext()
-    {
-        // Arrange
-        var testModelType = typeof(SourceGeneratorWithResolverAttributeModel);
-        var context = new DateTimeConverterResolver(ResolverModelJsonSerializerContext.Default);
-        var originalModel = new SourceGeneratorWithResolverAttributeModel
-        {
-            DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
-            NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
-            DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero)
-        };
-        const string expectedJson = """
-                                    {
-                                      "DateTimeProperty": "2023-10-01T12:00:00",
-                                      "NullableDateTimeProperty": "2023-10-01T12:00:00",
-                                      "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z"
-                                    }
-                                    """;
-
-        // Act
-        var json = JsonSerializer.Serialize(originalModel, testModelType, context);
-        var deserializedModel = (SourceGeneratorWithResolverAttributeModel?)JsonSerializer.Deserialize(json, testModelType, context);
-
-        // Assert
-        Assert.NotNull(deserializedModel);
-        Assert.Equal(originalModel.DateTimeProperty, deserializedModel.DateTimeProperty);
-        Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
-        Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
-        Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
-        Assert.Equal(expectedJson, json);
-    }
-
-    [Fact]
-    public void SourceGenerator_WithResolver_WithAttribute_WithNullValues_UsingOptions()
-    {
-        // Arrange
-        var sourceGenOptions = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            TypeInfoResolver = new DateTimeConverterResolver(ResolverModelJsonSerializerContext.Default)
-        };
-        var originalModel = new SourceGeneratorWithResolverAttributeModel
-        {
-            DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
-            NullableDateTimeProperty = null,
-            DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = null
-        };
-        const string expectedJson = """
-                                    {
-                                      "DateTimeProperty": "2023-10-01T12:00:00",
-                                      "NullableDateTimeProperty": null,
-                                      "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": null
-                                    }
-                                    """;
-
-        // Act
-        var json = JsonSerializer.Serialize(originalModel, sourceGenOptions);
-        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorWithResolverAttributeModel>(json, sourceGenOptions);
-
-        // Assert
-        Assert.NotNull(deserializedModel);
-        Assert.Equal(originalModel.DateTimeProperty, deserializedModel.DateTimeProperty);
-        Assert.Null(deserializedModel.NullableDateTimeProperty);
-        Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
-        Assert.Null(deserializedModel.NullableDateTimeOffsetProperty);
-        Assert.Equal(expectedJson, json);
-    }
-
-    [Fact]
     public void SourceGenerator_WithResolver_WithFormatAttribute_UsingOptions()
     {
         // Arrange
@@ -294,41 +183,6 @@ public class JsonDateTimeConverterAttributeTests
         // Act
         var json = JsonSerializer.Serialize(originalModel, sourceGenOptions);
         var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorWithResolverFormatModel>(json, sourceGenOptions);
-
-        // Assert
-        Assert.NotNull(deserializedModel);
-        Assert.Equal(originalModel.DateTimeProperty, deserializedModel.DateTimeProperty);
-        Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
-        Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
-        Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
-        Assert.Equal(expectedJson, json);
-    }
-
-    [Fact]
-    public void SourceGenerator_WithResolver_WithFormatAttribute_UsingContext()
-    {
-        // Arrange
-        var testModelType = typeof(SourceGeneratorWithResolverFormatModel);
-        var context = new DateTimeConverterResolver(ResolverModelJsonSerializerContext.Default);
-        var originalModel = new SourceGeneratorWithResolverFormatModel
-        {
-            DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
-            NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
-            DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero)
-        };
-        const string expectedJson = """
-                                    {
-                                      "DateTimeProperty": "2023-10-01T12:00:00",
-                                      "NullableDateTimeProperty": "2023-10-01T12:00:00",
-                                      "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z"
-                                    }
-                                    """;
-
-        // Act
-        var json = JsonSerializer.Serialize(originalModel, testModelType, context);
-        var deserializedModel = (SourceGeneratorWithResolverFormatModel?)JsonSerializer.Deserialize(json, testModelType, context);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -374,6 +228,76 @@ public class JsonDateTimeConverterAttributeTests
         Assert.Null(deserializedModel.NullableDateTimeProperty);
         Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
         Assert.Null(deserializedModel.NullableDateTimeOffsetProperty);
+        Assert.Equal(expectedJson, json);
+    }
+
+    [Fact]
+    public void SourceGenerator_WithResolver_WithFormatAttribute_UsingContext()
+    {
+        // Arrange
+        var testModelType = typeof(SourceGeneratorWithResolverFormatModel);
+        var context = new DateTimeConverterResolver(ResolverModelJsonSerializerContext.Default);
+        var originalModel = new SourceGeneratorWithResolverFormatModel
+        {
+            DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
+            NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
+            DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
+            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero)
+        };
+        const string expectedJson = """
+                                    {
+                                      "DateTimeProperty": "2023-10-01T12:00:00",
+                                      "NullableDateTimeProperty": "2023-10-01T12:00:00",
+                                      "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
+                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z"
+                                    }
+                                    """;
+
+        // Act
+        var json = JsonSerializer.Serialize(originalModel, testModelType, context);
+        var deserializedModel = (SourceGeneratorWithResolverFormatModel?)JsonSerializer.Deserialize(json, testModelType, context);
+
+        // Assert
+        Assert.NotNull(deserializedModel);
+        Assert.Equal(originalModel.DateTimeProperty, deserializedModel.DateTimeProperty);
+        Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
+        Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
+        Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
+        Assert.Equal(expectedJson, json);
+    }
+
+    [Fact]
+    public void SourceGenerator_WithResolver_WithFormatAttribute_WithNullValues_UsingContext()
+    {
+        // Arrange
+        var testModelType = typeof(SourceGeneratorWithResolverFormatModel);
+        var context = new DateTimeConverterResolver(ResolverModelJsonSerializerContext.Default);
+        var originalModel = new SourceGeneratorWithResolverFormatModel
+        {
+            DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
+            NullableDateTimeProperty = null,
+            DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
+            NullableDateTimeOffsetProperty = null
+        };
+        const string expectedJson = """
+                                    {
+                                      "DateTimeProperty": "2023-10-01T12:00:00",
+                                      "NullableDateTimeProperty": null,
+                                      "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
+                                      "NullableDateTimeOffsetProperty": null
+                                    }
+                                    """;
+
+        // Act
+        var json = JsonSerializer.Serialize(originalModel, testModelType, context);
+        var deserializedModel = (SourceGeneratorWithResolverFormatModel?)JsonSerializer.Deserialize(json, testModelType, context);
+
+        // Assert
+        Assert.NotNull(deserializedModel);
+        Assert.Equal(originalModel.DateTimeProperty, deserializedModel.DateTimeProperty);
+        Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
+        Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
+        Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
         Assert.Equal(expectedJson, json);
     }
 }

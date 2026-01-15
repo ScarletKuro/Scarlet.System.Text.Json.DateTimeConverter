@@ -12,7 +12,6 @@ public sealed partial class ConverterModelJsonSerializerContext : JsonSerializer
 /// <summary>
 /// JsonSerializerContext for models using attributes with DateTimeConverterResolver.
 /// </summary>
-[JsonSerializable(typeof(SourceGeneratorWithResolverAttributeModel))]
 [JsonSerializable(typeof(SourceGeneratorWithResolverFormatModel))]
 [JsonSourceGenerationOptions(WriteIndented = true)]
 public sealed partial class ResolverModelJsonSerializerContext : JsonSerializerContext;
