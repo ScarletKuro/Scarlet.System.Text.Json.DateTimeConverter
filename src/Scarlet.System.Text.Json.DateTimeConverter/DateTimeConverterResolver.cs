@@ -33,9 +33,15 @@ public class DateTimeConverterResolver : JsonSerializerContext, IJsonTypeInfoRes
 
         foreach (var jsonPropertyInfo in jsonTypeInfo.Properties)
         {
-            if (jsonPropertyInfo.AttributeProvider?.GetCustomAttributes(typeof(JsonDateTimeConverterAttribute), inherit: false) is [JsonDateTimeConverterAttribute attr, ..])
+            // First check for JsonDateTimeFormatAttribute (preferred for source generators, no warnings)
+            if (jsonPropertyInfo.AttributeProvider?.GetCustomAttributes(typeof(JsonDateTimeFormatAttribute), inherit: false) is [JsonDateTimeFormatAttribute formatAttr, ..])
             {
-                jsonPropertyInfo.CustomConverter = attr.CreateConverter(jsonPropertyInfo.PropertyType);
+                jsonPropertyInfo.CustomConverter = DateTimeConverterFactoryHelper.CreateConverter(jsonPropertyInfo.PropertyType, formatAttr.Format);
+            }
+            // Fall back to JsonDateTimeConverterAttribute for backward compatibility
+            else if (jsonPropertyInfo.AttributeProvider?.GetCustomAttributes(typeof(JsonDateTimeConverterAttribute), inherit: false) is [JsonDateTimeConverterAttribute converterAttr, ..])
+            {
+                jsonPropertyInfo.CustomConverter = converterAttr.CreateConverter(jsonPropertyInfo.PropertyType);
             }
         }
 

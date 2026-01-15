@@ -1,6 +1,11 @@
 ﻿namespace Scarlet.System.Text.Json.DateTimeConverter.Tests.Model;
 
-public class TestModelJsonDateTimeConverter
+/// <summary>
+/// Test model demonstrating JsonDateTimeConverter attribute usage with reflection-based serialization.
+/// This model uses the JsonDateTimeConverter attribute which only works with reflection-based
+/// System.Text.Json serialization (not with source generators).
+/// </summary>
+public class ReflectionBasedModel
 {
     [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss")]
     public DateTime DateTimeProperty { get; set; }
