@@ -33,9 +33,9 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTime)) }
+            Converters = { new JsonDateTimeConverterAttribute("MM/dd/yyyy").CreateConverter(typeof(DateTime)) }
         };
-        var json = "\"2023-10-15\"";
+        var json = "\"10/15/2023\"";
 
         // Act
         var result = JsonSerializer.Deserialize<DateTime>(json, options);
@@ -50,7 +50,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTime)) }
+            Converters = { new JsonDateTimeConverterAttribute("dd-MM-yyyy").CreateConverter(typeof(DateTime)) }
         };
         // ISO 8601 format that doesn't match our custom format
         var json = "\"2023-10-15T14:30:45Z\"";
@@ -107,7 +107,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTime?)) }
+            Converters = { new JsonDateTimeConverterAttribute("yyyy/MM/dd").CreateConverter(typeof(DateTime?)) }
         };
         DateTime? date = new DateTime(2023, 10, 15, 14, 30, 45, DateTimeKind.Utc);
 
@@ -115,7 +115,7 @@ public class ConverterTests
         var json = JsonSerializer.Serialize(date, options);
 
         // Assert
-        Assert.Equal("\"2023-10-15\"", json);
+        Assert.Equal("\"2023/10/15\"", json);
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTime?)) }
+            Converters = { new JsonDateTimeConverterAttribute("yyyyMMdd").CreateConverter(typeof(DateTime?)) }
         };
         DateTime? date = null;
 
@@ -141,9 +141,9 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTime?)) }
+            Converters = { new JsonDateTimeConverterAttribute("dd.MM.yyyy").CreateConverter(typeof(DateTime?)) }
         };
-        var json = "\"2023-10-15\"";
+        var json = "\"15.10.2023\"";
 
         // Act
         var result = JsonSerializer.Deserialize<DateTime?>(json, options);
@@ -159,7 +159,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTime?)) }
+            Converters = { new JsonDateTimeConverterAttribute("yyyy.MM.dd").CreateConverter(typeof(DateTime?)) }
         };
         var json = "null";
 
@@ -176,7 +176,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTime?)) }
+            Converters = { new JsonDateTimeConverterAttribute("MM-dd-yyyy").CreateConverter(typeof(DateTime?)) }
         };
         var json = "\"invalid-date\"";
 
@@ -211,7 +211,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTime?)) }
+            Converters = { new JsonDateTimeConverterAttribute("dd/MM/yyyy").CreateConverter(typeof(DateTime?)) }
         };
         DateTime? original = null;
 
@@ -267,7 +267,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTimeOffset)) }
+            Converters = { new JsonDateTimeConverterAttribute("yyyyMMdd").CreateConverter(typeof(DateTimeOffset)) }
         };
         // Standard ISO 8601 format
         var json = "\"2023-10-15T14:30:45+00:00\"";
@@ -324,7 +324,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTimeOffset?)) }
+            Converters = { new JsonDateTimeConverterAttribute("yyyy/MM/dd").CreateConverter(typeof(DateTimeOffset?)) }
         };
         DateTimeOffset? date = null;
 
@@ -359,7 +359,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTimeOffset?)) }
+            Converters = { new JsonDateTimeConverterAttribute("dd-MM-yyyy").CreateConverter(typeof(DateTimeOffset?)) }
         };
         var json = "null";
 
@@ -376,7 +376,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTimeOffset?)) }
+            Converters = { new JsonDateTimeConverterAttribute("MM/dd/yyyy").CreateConverter(typeof(DateTimeOffset?)) }
         };
         var json = "\"invalid-date\"";
 
@@ -411,7 +411,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateTimeOffset?)) }
+            Converters = { new JsonDateTimeConverterAttribute("dd.MM.yyyy").CreateConverter(typeof(DateTimeOffset?)) }
         };
         DateTimeOffset? original = null;
 
@@ -485,7 +485,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateOnly)) }
+            Converters = { new JsonDateTimeConverterAttribute("dd/MM/yyyy").CreateConverter(typeof(DateOnly)) }
         };
         var json = "\"invalid-date-format\"";
 
@@ -538,7 +538,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateOnly?)) }
+            Converters = { new JsonDateTimeConverterAttribute("dd-MM-yyyy").CreateConverter(typeof(DateOnly?)) }
         };
         DateOnly? date = null;
 
@@ -573,7 +573,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateOnly?)) }
+            Converters = { new JsonDateTimeConverterAttribute("dd.MM.yyyy").CreateConverter(typeof(DateOnly?)) }
         };
         var json = "null";
 
@@ -590,7 +590,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateOnly?)) }
+            Converters = { new JsonDateTimeConverterAttribute("MM-dd-yyyy").CreateConverter(typeof(DateOnly?)) }
         };
         var json = "\"invalid-date\"";
 
@@ -625,7 +625,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("yyyy-MM-dd").CreateConverter(typeof(DateOnly?)) }
+            Converters = { new JsonDateTimeConverterAttribute("yyyy.MM.dd").CreateConverter(typeof(DateOnly?)) }
         };
         DateOnly? original = null;
 
@@ -681,7 +681,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("HH:mm").CreateConverter(typeof(TimeOnly)) }
+            Converters = { new JsonDateTimeConverterAttribute("HH.mm").CreateConverter(typeof(TimeOnly)) }
         };
         // Full datetime that doesn't match our format
         var json = "\"2023-10-15T14:30:45Z\"";
@@ -752,7 +752,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("HH:mm:ss").CreateConverter(typeof(TimeOnly?)) }
+            Converters = { new JsonDateTimeConverterAttribute("HH-mm-ss").CreateConverter(typeof(TimeOnly?)) }
         };
         TimeOnly? time = null;
 
@@ -787,7 +787,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("HH:mm:ss").CreateConverter(typeof(TimeOnly?)) }
+            Converters = { new JsonDateTimeConverterAttribute("HH.mm.ss").CreateConverter(typeof(TimeOnly?)) }
         };
         var json = "null";
 
@@ -804,7 +804,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("HH:mm:ss").CreateConverter(typeof(TimeOnly?)) }
+            Converters = { new JsonDateTimeConverterAttribute("mm:ss:HH").CreateConverter(typeof(TimeOnly?)) }
         };
         var json = "\"invalid-time\"";
 
@@ -839,7 +839,7 @@ public class ConverterTests
         // Arrange
         var options = new JsonSerializerOptions
         {
-            Converters = { new JsonDateTimeConverterAttribute("HH:mm:ss").CreateConverter(typeof(TimeOnly?)) }
+            Converters = { new JsonDateTimeConverterAttribute("HH:mm").CreateConverter(typeof(TimeOnly?)) }
         };
         TimeOnly? original = null;
 
