@@ -8,11 +8,14 @@ namespace Scarlet.System.Text.Json.DateTimeConverter.Tests;
 /// </summary>
 public class DateTimeConverterFactoryHelperTests
 {
+    private const string TestDateFormat = "yyyy-MM-dd";
+    private const string TestTimeFormat = "HH:mm:ss";
+
     [Fact]
     public void CreateConverter_DateTime_ReturnsDateTimeConverter()
     {
         // Act
-        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateTime), "yyyy-MM-dd");
+        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateTime), TestDateFormat);
 
         // Assert
         Assert.NotNull(converter);
@@ -23,7 +26,7 @@ public class DateTimeConverterFactoryHelperTests
     public void CreateConverter_NullableDateTime_ReturnsDateTimeNullableConverter()
     {
         // Act
-        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateTime?), "yyyy-MM-dd");
+        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateTime?), TestDateFormat);
 
         // Assert
         Assert.NotNull(converter);
@@ -34,7 +37,7 @@ public class DateTimeConverterFactoryHelperTests
     public void CreateConverter_DateTimeOffset_ReturnsDateTimeOffsetConverter()
     {
         // Act
-        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateTimeOffset), "yyyy-MM-dd");
+        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateTimeOffset), TestDateFormat);
 
         // Assert
         Assert.NotNull(converter);
@@ -45,7 +48,7 @@ public class DateTimeConverterFactoryHelperTests
     public void CreateConverter_NullableDateTimeOffset_ReturnsDateTimeOffsetNullableConverter()
     {
         // Act
-        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateTimeOffset?), "yyyy-MM-dd");
+        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateTimeOffset?), TestDateFormat);
 
         // Assert
         Assert.NotNull(converter);
@@ -56,7 +59,7 @@ public class DateTimeConverterFactoryHelperTests
     public void CreateConverter_DateOnly_ReturnsDateOnlyConverter()
     {
         // Act
-        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateOnly), "yyyy-MM-dd");
+        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateOnly), TestDateFormat);
 
         // Assert
         Assert.NotNull(converter);
@@ -67,7 +70,7 @@ public class DateTimeConverterFactoryHelperTests
     public void CreateConverter_NullableDateOnly_ReturnsDateOnlyNullableConverter()
     {
         // Act
-        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateOnly?), "yyyy-MM-dd");
+        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(DateOnly?), TestDateFormat);
 
         // Assert
         Assert.NotNull(converter);
@@ -78,7 +81,7 @@ public class DateTimeConverterFactoryHelperTests
     public void CreateConverter_TimeOnly_ReturnsTimeOnlyConverter()
     {
         // Act
-        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(TimeOnly), "HH:mm:ss");
+        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(TimeOnly), TestTimeFormat);
 
         // Assert
         Assert.NotNull(converter);
@@ -89,7 +92,7 @@ public class DateTimeConverterFactoryHelperTests
     public void CreateConverter_NullableTimeOnly_ReturnsTimeOnlyNullableConverter()
     {
         // Act
-        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(TimeOnly?), "HH:mm:ss");
+        var converter = DateTimeConverterFactoryHelper.CreateConverter(typeof(TimeOnly?), TestTimeFormat);
 
         // Assert
         Assert.NotNull(converter);
@@ -101,7 +104,7 @@ public class DateTimeConverterFactoryHelperTests
     {
         // Act & Assert
         var exception = Assert.Throws<NotSupportedException>(() =>
-            DateTimeConverterFactoryHelper.CreateConverter(typeof(string), "yyyy-MM-dd"));
+            DateTimeConverterFactoryHelper.CreateConverter(typeof(string), TestDateFormat));
 
         Assert.Contains("System.String", exception.Message);
         Assert.Contains("DateTimeConverterFactoryHelper", exception.Message);
@@ -112,7 +115,7 @@ public class DateTimeConverterFactoryHelperTests
     {
         // Act & Assert
         var exception = Assert.Throws<NotSupportedException>(() =>
-            DateTimeConverterFactoryHelper.CreateConverter(typeof(int), "yyyy-MM-dd"));
+            DateTimeConverterFactoryHelper.CreateConverter(typeof(int), TestDateFormat));
 
         Assert.Contains("System.Int32", exception.Message);
         Assert.Contains("DateTimeConverterFactoryHelper", exception.Message);
@@ -123,6 +126,6 @@ public class DateTimeConverterFactoryHelperTests
     {
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() =>
-            DateTimeConverterFactoryHelper.CreateConverter(null!, "yyyy-MM-dd"));
+            DateTimeConverterFactoryHelper.CreateConverter(null!, TestDateFormat));
     }
 }

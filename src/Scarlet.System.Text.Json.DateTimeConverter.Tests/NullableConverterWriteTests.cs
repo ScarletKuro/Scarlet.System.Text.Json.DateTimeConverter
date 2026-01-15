@@ -9,11 +9,20 @@ namespace Scarlet.System.Text.Json.DateTimeConverter.Tests;
 /// </summary>
 public class NullableConverterWriteTests
 {
+    private const string TestDateFormat = "yyyy-MM-dd";
+    private const string TestTimeFormat = "HH:mm:ss";
+    private const int TestYear = 2023;
+    private const int TestMonth = 10;
+    private const int TestDay = 15;
+    private const int TestHour = 14;
+    private const int TestMinute = 30;
+    private const int TestSecond = 45;
+
     [Fact]
     public void DateTimeNullableConverter_Write_DirectCallWithNull_WritesNullValue()
     {
         // Arrange
-        var converter = Converters.DateTimeNullableConverter.FromFormat("yyyy-MM-dd");
+        var converter = Converters.DateTimeNullableConverter.FromFormat(TestDateFormat);
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
         DateTime? value = null;
@@ -31,10 +40,10 @@ public class NullableConverterWriteTests
     public void DateTimeNullableConverter_Write_DirectCallWithValue_WritesFormattedDate()
     {
         // Arrange
-        var converter = Converters.DateTimeNullableConverter.FromFormat("yyyy-MM-dd");
+        var converter = Converters.DateTimeNullableConverter.FromFormat(TestDateFormat);
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
-        DateTime? value = new DateTime(2023, 10, 15);
+        DateTime? value = new DateTime(TestYear, TestMonth, TestDay);
 
         // Act
         converter.Write(writer, value, new JsonSerializerOptions());
@@ -49,7 +58,7 @@ public class NullableConverterWriteTests
     public void DateTimeOffsetNullableConverter_Write_DirectCallWithNull_WritesNullValue()
     {
         // Arrange
-        var converter = Converters.DateTimeOffsetNullableConverter.FromFormat("yyyy-MM-dd");
+        var converter = Converters.DateTimeOffsetNullableConverter.FromFormat(TestDateFormat);
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
         DateTimeOffset? value = null;
@@ -67,10 +76,10 @@ public class NullableConverterWriteTests
     public void DateTimeOffsetNullableConverter_Write_DirectCallWithValue_WritesFormattedDate()
     {
         // Arrange
-        var converter = Converters.DateTimeOffsetNullableConverter.FromFormat("yyyy-MM-dd");
+        var converter = Converters.DateTimeOffsetNullableConverter.FromFormat(TestDateFormat);
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
-        DateTimeOffset? value = new DateTimeOffset(2023, 10, 15, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset? value = new DateTimeOffset(TestYear, TestMonth, TestDay, 0, 0, 0, TimeSpan.Zero);
 
         // Act
         converter.Write(writer, value, new JsonSerializerOptions());
@@ -85,7 +94,7 @@ public class NullableConverterWriteTests
     public void DateOnlyNullableConverter_Write_DirectCallWithNull_WritesNullValue()
     {
         // Arrange
-        var converter = Converters.DateOnlyNullableConverter.FromFormat("yyyy-MM-dd");
+        var converter = Converters.DateOnlyNullableConverter.FromFormat(TestDateFormat);
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
         DateOnly? value = null;
@@ -103,10 +112,10 @@ public class NullableConverterWriteTests
     public void DateOnlyNullableConverter_Write_DirectCallWithValue_WritesFormattedDate()
     {
         // Arrange
-        var converter = Converters.DateOnlyNullableConverter.FromFormat("yyyy-MM-dd");
+        var converter = Converters.DateOnlyNullableConverter.FromFormat(TestDateFormat);
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
-        DateOnly? value = new DateOnly(2023, 10, 15);
+        DateOnly? value = new DateOnly(TestYear, TestMonth, TestDay);
 
         // Act
         converter.Write(writer, value, new JsonSerializerOptions());
@@ -121,7 +130,7 @@ public class NullableConverterWriteTests
     public void TimeOnlyNullableConverter_Write_DirectCallWithNull_WritesNullValue()
     {
         // Arrange
-        var converter = Converters.TimeOnlyNullableConverter.FromFormat("HH:mm:ss");
+        var converter = Converters.TimeOnlyNullableConverter.FromFormat(TestTimeFormat);
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
         TimeOnly? value = null;
@@ -139,10 +148,10 @@ public class NullableConverterWriteTests
     public void TimeOnlyNullableConverter_Write_DirectCallWithValue_WritesFormattedTime()
     {
         // Arrange
-        var converter = Converters.TimeOnlyNullableConverter.FromFormat("HH:mm:ss");
+        var converter = Converters.TimeOnlyNullableConverter.FromFormat(TestTimeFormat);
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
-        TimeOnly? value = new TimeOnly(14, 30, 45);
+        TimeOnly? value = new TimeOnly(TestHour, TestMinute, TestSecond);
 
         // Act
         converter.Write(writer, value, new JsonSerializerOptions());
@@ -157,8 +166,8 @@ public class NullableConverterWriteTests
     public void DateTimeNullableConverter_Write_NullWriter_ThrowsArgumentNullException()
     {
         // Arrange
-        var converter = Converters.DateTimeNullableConverter.FromFormat("yyyy-MM-dd");
-        DateTime? value = new DateTime(2023, 10, 15);
+        var converter = Converters.DateTimeNullableConverter.FromFormat(TestDateFormat);
+        DateTime? value = new DateTime(TestYear, TestMonth, TestDay);
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => converter.Write(null!, value, new JsonSerializerOptions()));
@@ -168,8 +177,8 @@ public class NullableConverterWriteTests
     public void DateTimeOffsetNullableConverter_Write_NullWriter_ThrowsArgumentNullException()
     {
         // Arrange
-        var converter = Converters.DateTimeOffsetNullableConverter.FromFormat("yyyy-MM-dd");
-        DateTimeOffset? value = new DateTimeOffset(2023, 10, 15, 0, 0, 0, TimeSpan.Zero);
+        var converter = Converters.DateTimeOffsetNullableConverter.FromFormat(TestDateFormat);
+        DateTimeOffset? value = new DateTimeOffset(TestYear, TestMonth, TestDay, 0, 0, 0, TimeSpan.Zero);
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => converter.Write(null!, value, new JsonSerializerOptions()));
@@ -179,8 +188,8 @@ public class NullableConverterWriteTests
     public void DateOnlyNullableConverter_Write_NullWriter_ThrowsArgumentNullException()
     {
         // Arrange
-        var converter = Converters.DateOnlyNullableConverter.FromFormat("yyyy-MM-dd");
-        DateOnly? value = new DateOnly(2023, 10, 15);
+        var converter = Converters.DateOnlyNullableConverter.FromFormat(TestDateFormat);
+        DateOnly? value = new DateOnly(TestYear, TestMonth, TestDay);
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => converter.Write(null!, value, new JsonSerializerOptions()));
@@ -190,8 +199,8 @@ public class NullableConverterWriteTests
     public void TimeOnlyNullableConverter_Write_NullWriter_ThrowsArgumentNullException()
     {
         // Arrange
-        var converter = Converters.TimeOnlyNullableConverter.FromFormat("HH:mm:ss");
-        TimeOnly? value = new TimeOnly(14, 30, 45);
+        var converter = Converters.TimeOnlyNullableConverter.FromFormat(TestTimeFormat);
+        TimeOnly? value = new TimeOnly(TestHour, TestMinute, TestSecond);
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => converter.Write(null!, value, new JsonSerializerOptions()));
