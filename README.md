@@ -1,130 +1,365 @@
-## Overview
+# Scarlet.System.Text.Json.DateTimeConverter
+
 [![Nuget](https://img.shields.io/nuget/v/Scarlet.System.Text.Json.DateTimeConverter?color=ff4081&logo=nuget)](https://www.nuget.org/packages/Scarlet.System.Text.Json.DateTimeConverter)
 [![Nuget](https://img.shields.io/nuget/dt/Scarlet.System.Text.Json.DateTimeConverter?color=ff4081&label=nuget%20downloads&logo=nuget)](https://www.nuget.org/packages/Scarlet.System.Text.Json.DateTimeConverter)
 [![GitHub](https://img.shields.io/github/license/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter?color=594ae2&logo=github)](https://github.com/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter/blob/master/LICENSE)
 
-This package allows you to specify a custom date format for `DateTime`, `DateTimeOffset`, and their nullable counterparts when serializing and deserializing JSON using `System.Text.Json`.
+A flexible and powerful library for customizing `DateTime` and `DateTimeOffset` serialization in System.Text.Json, with full support for both reflection-based and source generator approaches.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Installation](#installation)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Usage Scenarios](#usage-scenarios)
+  - [Reflection-Based Serialization (.NET 6+)](#reflection-based-serialization-net-6)
+  - [Source Generator with Format Converter (.NET 6+)](#source-generator-with-format-converter-net-6)
+  - [Source Generator with Attribute and Resolver (.NET 9+)](#source-generator-with-attribute-and-resolver-net-9)
+- [Available Components](#available-components)
+- [When to Use What](#when-to-use-what)
+- [Quirks and Limitations](#quirks-and-limitations)
+- [Supported Types](#supported-types)
+- [License](#license)
+
+## Overview
+
+This package provides three ways to specify custom date formats for `DateTime`, `DateTimeOffset`, and their nullable counterparts when serializing and deserializing JSON using `System.Text.Json`:
+
+1. **`JsonDateTimeConverterAttribute`** - Simple attribute-based approach (reflection only, or .NET 9+ with resolver)
+2. **`JsonDateTimeFormatConverter<T>`** - Type-safe converter for source generators
+3. **`DateTimeConverterResolver`** - Contract customization for .NET 9+ source generators
 
 ## Installation
-
-To install the **Scarlet.System.Text.Json.DateTimeConverter** package, run the following command in your terminal:
 
 ```bash
 dotnet add package Scarlet.System.Text.Json.DateTimeConverter
 ```
 
-### Prerequisites
+## Prerequisites
 
-Make sure you have the appropriate .NET target framework installed. This package is compatible with the following versions:
+- **.NET 6+** for basic functionality
+- **.NET 9+** for `DateTimeConverterResolver` (source generator attribute support)
 
-- .NET 6
-- .NET 7
-- .NET 8
+| Target Framework | Reflection + Attribute | Source Generator + Converter | Source Generator + Attribute + Resolver |
+|-----------------|:---------------------:|:---------------------------:|:--------------------------------------:|
+| .NET 6, 7, 8    | ✅ | ✅ | ❌ |
+| .NET 9, 10+     | ✅ | ✅ | ✅ |
 
-## Usage
+## Quick Start
 
-Examples of how to serialize and deserialize models with custom date formats using `JsonDateTimeConverter` attribute and `JsonDateTimeFormatConverter` converter. 
-
-**Note:** The `JsonDateTimeConverter` attribute does not support `System.Text.Json` source generators. Using this attribute with `JsonSerializerContext` results in **SYSLIB1223**: "Attributes deriving from `JsonConverterAttribute` are not supported by the source generator."
-
-In such cases, use the `JsonDateTimeFormatConverter`, which also works with reflection-based serialization and deserialization. The `JsonDateTimeConverter` attribute is simply less verbose and more readable than the `JsonDateTimeFormatConverter`.
-
-### Using reflection based only with `JsonDateTimeConverter`
-
-This will work only with reflection-based serialization and deserialization.
+**Simplest approach** (reflection-based):
 
 ```csharp
 public class MyModel
 {
     [JsonDateTimeConverter("yyyy-MM-dd")]
     public DateTime Date { get; set; }
-
-    [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss.fffZ")]
-    public DateTimeOffset DateTimeOffset { get; set; }
 }
 
-public class Program
-{
-    public static void Main()
-    {
-        var model = new MyModel
-        {
-            Date = DateTime.Now,
-            DateTimeOffset = DateTimeOffset.Now
-        };
-
-        // Serialize
-        string jsonString = JsonSerializer.Serialize(model);
-        Console.WriteLine($"Serialized JSON: {jsonString}");
-
-        // Deserialize
-        var deserializedModel = JsonSerializer.Deserialize<MyModel>(jsonString);
-        Console.WriteLine($"Deserialized Date: {deserializedModel.Date}");
-        Console.WriteLine($"Deserialized DateTimeOffset: {deserializedModel.DateTimeOffset}");
-    }
-}
+var json = JsonSerializer.Serialize(new MyModel { Date = DateTime.Now });
+// Output: {"Date":"2026-01-15"}
 ```
 
-### Using Source Generators with `JsonDateTimeFormatConverter`
+## Usage Scenarios
 
-To work with `System.Text.Json` source generators, use `JsonDateTimeFormatConverter` instead of `JsonDateTimeConverterAttribute`. This can also work with reflection-based serialization and deserialization.
+### Reflection-Based Serialization (.NET 6+)
 
+Use `JsonDateTimeConverterAttribute` for the simplest, most readable approach with reflection-based serialization.
 
 ```csharp
-public class MyModelSourceGenerator
-{
-    [JsonConverter(typeof(JsonDateTimeFormatConverter<JsonDateTimeFormat.DateTimeFormat>))]
-    public DateTime Date { get; set; }
+using Scarlet.System.Text.Json.DateTimeConverter;
+using System.Text.Json;
 
-    [JsonConverter(typeof(JsonDateTimeFormatConverter<JsonDateTimeFormat.DateTimeOffsetFormat>))]
-    public DateTimeOffset DateTimeOffset { get; set; }
+public class Order
+{
+    [JsonDateTimeConverter("yyyy-MM-dd")]
+    public DateTime OrderDate { get; set; }
+
+    [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss")]
+    public DateTime? ProcessedDate { get; set; }
+
+    [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss.fffZ")]
+    public DateTimeOffset ShippedAt { get; set; }
 }
 
-internal class JsonDateTimeFormat
+// Usage
+var order = new Order
 {
-    internal class DateTimeOffsetFormat : IJsonDateTimeFormat
+    OrderDate = new DateTime(2026, 1, 15),
+    ProcessedDate = new DateTime(2026, 1, 15, 14, 30, 0),
+    ShippedAt = DateTimeOffset.UtcNow
+};
+
+string json = JsonSerializer.Serialize(order);
+Console.WriteLine(json);
+// Output: {"OrderDate":"2026-01-15","ProcessedDate":"2026-01-15T14:30:00","ShippedAt":"2026-01-15T14:30:00.123Z"}
+
+var deserializedOrder = JsonSerializer.Deserialize<Order>(json);
+```
+
+**✅ Pros:**
+- Clean, readable code with attribute decoration
+- Works with all .NET versions (6+)
+- Easy to use and understand
+
+**❌ Cons:**
+- Only works with reflection-based serialization
+- Produces SYSLIB1223 warning with source generators (.NET 6-8)
+- No AOT (Ahead-of-Time) compilation support
+
+---
+
+### Source Generator with Format Converter (.NET 6+)
+
+Use `JsonDateTimeFormatConverter<T>` for source generator compatibility across all .NET versions.
+
+```csharp
+using Scarlet.System.Text.Json.DateTimeConverter;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+public class Order
+{
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<DateFormats.DateOnly>))]
+    public DateTime OrderDate { get; set; }
+
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<DateFormats.DateTimeSeconds>))]
+    public DateTime? ProcessedDate { get; set; }
+
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<DateFormats.ISO8601>))]
+    public DateTimeOffset ShippedAt { get; set; }
+}
+
+// Define your custom date formats
+public static class DateFormats
+{
+    public class DateOnly : IJsonDateTimeFormat
     {
-        public static string Format => "yyyy-MM-ddTHH:mm:ss.fffZ";
+        public static string Format => "yyyy-MM-dd";
     }
-    
-    internal class DateTimeFormat : IJsonDateTimeFormat
+
+    public class DateTimeSeconds : IJsonDateTimeFormat
     {
         public static string Format => "yyyy-MM-ddTHH:mm:ss";
     }
+
+    public class ISO8601 : IJsonDateTimeFormat
+    {
+        public static string Format => "yyyy-MM-ddTHH:mm:ss.fffZ";
+    }
 }
 
-[JsonSerializable(typeof(MyModelSourceGenerator))]
-public sealed partial class MyModelSourceGeneratorJsonSerializerContext : JsonSerializerContext;
+// Create a JsonSerializerContext for source generation
+[JsonSerializable(typeof(Order))]
+[JsonSourceGenerationOptions(WriteIndented = true)]
+public partial class OrderJsonContext : JsonSerializerContext { }
 
-public class Program
+// Usage with source generator
+var order = new Order
 {
-    public static void Main()
-    {
-        var modelType = typeof(MyModelSourceGenerator);
-        var model = new MyModelSourceGenerator
-        {
-            Date = DateTime.Now,
-            DateTimeOffset = DateTimeOffset.Now
-        };
+    OrderDate = new DateTime(2026, 1, 15),
+    ProcessedDate = new DateTime(2026, 1, 15, 14, 30, 0),
+    ShippedAt = DateTimeOffset.UtcNow
+};
 
-        var context = MyModelSourceGeneratorJsonSerializerContext.Default;
+string json = JsonSerializer.Serialize(order, typeof(Order), OrderJsonContext.Default);
+Console.WriteLine(json);
 
-        // Serialize
-        string jsonString = JsonSerializer.Serialize(model, modelType, context);
-        Console.WriteLine($"Serialized JSON: {jsonString}");
+var deserializedOrder = (Order?)JsonSerializer.Deserialize(json, typeof(Order), OrderJsonContext.Default);
+```
 
-        // Deserialize
-        var deserializedModel = (MyModelSourceGenerator?)JsonSerializer.Deserialize(jsonString, modelType, context);
-        Console.WriteLine($"Deserialized Date: {deserializedModel.Date}");
-        Console.WriteLine($"Deserialized DateTimeOffset: {deserializedModel.DateTimeOffset}");
-    }
+**✅ Pros:**
+- Works with source generators (AOT-friendly)
+- Compatible with all .NET versions (6+)
+- Type-safe format definitions
+
+**❌ Cons:**
+- Requires defining a class for each date format
+- More verbose than attribute-based approach
+- Format classes add boilerplate code
+
+---
+
+### Source Generator with Attribute and Resolver (.NET 9+)
+
+**.NET 9+** introduces `AttributeProvider` on `JsonPropertyInfo`, enabling attribute-based syntax with source generators via `DateTimeConverterResolver`.
+
+```csharp
+using Scarlet.System.Text.Json.DateTimeConverter;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+public class Order
+{
+    [JsonDateTimeConverter("yyyy-MM-dd")]
+    public DateTime OrderDate { get; set; }
+
+    [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss")]
+    public DateTime? ProcessedDate { get; set; }
+
+    [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss.fffZ")]
+    public DateTimeOffset ShippedAt { get; set; }
+}
+
+[JsonSerializable(typeof(Order))]
+[JsonSourceGenerationOptions(WriteIndented = true)]
+public partial class OrderJsonContext : JsonSerializerContext { }
+
+// Usage - Method 1: With JsonSerializerOptions
+var options = new JsonSerializerOptions
+{
+    WriteIndented = true,
+    TypeInfoResolver = new DateTimeConverterResolver(OrderJsonContext.Default)
+};
+
+string json = JsonSerializer.Serialize(order, options);
+var deserializedOrder = JsonSerializer.Deserialize<Order>(json, options);
+
+// Usage - Method 2: With Context directly
+var resolver = new DateTimeConverterResolver(OrderJsonContext.Default);
+string json = JsonSerializer.Serialize(order, typeof(Order), resolver);
+var deserializedOrder = (Order?)JsonSerializer.Deserialize(json, typeof(Order), resolver);
+```
+
+**✅ Pros:**
+- Clean attribute syntax with source generators
+- AOT-friendly
+- Best of both worlds: readability + performance
+
+**❌ Cons:**
+- **Requires .NET 9+**
+- Slightly more setup (need to wrap context with resolver)
+
+---
+
+## Available Components
+
+### `JsonDateTimeConverterAttribute`
+
+A `JsonConverterAttribute`-derived attribute for specifying date formats directly on properties.
+
+```csharp
+[JsonDateTimeConverter("yyyy-MM-dd")]
+public DateTime Date { get; set; }
+```
+
+**When to use:** Reflection-based serialization, or .NET 9+ with `DateTimeConverterResolver`.
+
+---
+
+### `JsonDateTimeFormatConverter<T>`
+
+A `JsonConverterFactory` that uses `IJsonDateTimeFormat` implementations to define formats.
+
+```csharp
+public class MyFormat : IJsonDateTimeFormat
+{
+    public static string Format => "yyyy-MM-dd";
+}
+
+[JsonConverter(typeof(JsonDateTimeFormatConverter<MyFormat>))]
+public DateTime Date { get; set; }
+```
+
+**When to use:** Source generators on any .NET version (6+).
+
+---
+
+### `DateTimeConverterResolver` (.NET 9+)
+
+A `JsonSerializerContext` and `IJsonTypeInfoResolver` that enables `JsonDateTimeConverterAttribute` to work with source generators by using contract customization.
+
+```csharp
+var resolver = new DateTimeConverterResolver(MyJsonContext.Default);
+var options = new JsonSerializerOptions { TypeInfoResolver = resolver };
+```
+
+**When to use:** .NET 9+ source generators with attribute syntax.
+
+---
+
+## When to Use What
+
+| Scenario | Recommended Approach |
+|----------|---------------------|
+| Reflection-based, any .NET version | `JsonDateTimeConverterAttribute` |
+| Source generator, .NET 6-8 | `JsonDateTimeFormatConverter<T>` |
+| Source generator, .NET 9+ | `JsonDateTimeConverterAttribute` + `DateTimeConverterResolver` |
+| Need reusable formats across many properties | `JsonDateTimeFormatConverter<T>` (define format class once) |
+| Prototyping/simple projects | `JsonDateTimeConverterAttribute` (simplest) |
+| AOT compilation | `JsonDateTimeFormatConverter<T>` or .NET 9+ resolver |
+
+---
+
+## Quirks and Limitations
+
+### Source Generator Limitations (.NET 6-8)
+
+`JsonDateTimeConverterAttribute` produces **SYSLIB1223** warning with source generators in .NET 6-8:
+
+> "Attributes deriving from JsonConverterAttribute are not supported by the source generator."
+
+**Solution:** Use `JsonDateTimeFormatConverter<T>` instead, or upgrade to .NET 9+.
+
+---
+
+### Format Class Per Format
+
+With `JsonDateTimeFormatConverter<T>`, you need one class per unique format:
+
+```csharp
+public class Format1 : IJsonDateTimeFormat { public static string Format => "yyyy-MM-dd"; }
+public class Format2 : IJsonDateTimeFormat { public static string Format => "yyyy-MM-ddTHH:mm:ss"; }
+```
+
+This is a limitation of source generators not supporting constructor parameters or static analyzer tricks.
+
+---
+
+### .NET 9+ Resolver Requirement
+
+`DateTimeConverterResolver` **only works on .NET 9+** because it relies on `JsonPropertyInfo.AttributeProvider`, which was added in .NET 9.
+
+---
+
+### Null Handling
+
+Nullable types (`DateTime?`, `DateTimeOffset?`) write `null` in JSON when the value is `null`:
+
+```json
+{
+  "NullableDate": null
 }
 ```
 
-Unfortunately, there is no better way with the source generator than defining a class for each date-time format. This is because the `JsonConverterAttribute` is not supported by the source generator, and neither `JsonConverterFactory` nor `JsonConverter` allows passing the format string to the converter, as they lack constructors with parameters.
-The new contract customization does not provide attribute support for the source generator as well.
+This matches standard `System.Text.Json` behavior.
 
-## Notes
+---
 
-- The `JsonDateTimeConverterAttribute` and `JsonDateTimeFormatConverter` can be applied to properties of type `DateTime`, `DateTime?`, `DateTimeOffset`, and `DateTimeOffset?`.
-- The format string provided to the attribute should follow the standard date and time format strings in .NET.
+## Supported Types
+
+- `DateTime`
+- `DateTime?`
+- `DateTimeOffset`
+- `DateTimeOffset?`
+
+All types support any valid [.NET date and time format string](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings).
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please open an issue or pull request on [GitHub](https://github.com/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter).
+
+---
+
+## Support
+
+If you encounter any issues or have questions, please open an issue on the [GitHub repository](https://github.com/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter/issues).
