@@ -6,14 +6,14 @@ namespace Scarlet.System.Text.Json.DateTimeConverter.Tests;
 public class JsonDateTimeFormatConverterTests
 {
     [Fact]
-    public void SerializeAndDeserialize_Reflection_TestModel_ShouldMatchOriginal()
+    public void ReflectionBased_CompleteModel_WithFormatConverter()
     {
         // Arrange
         var options = new JsonSerializerOptions
         {
             WriteIndented = true
         };
-        var originalModel = new TestModelSourceGenerator
+        var originalModel = new SourceGeneratorModel
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
@@ -31,7 +31,7 @@ public class JsonDateTimeFormatConverterTests
 
         // Act
         var json = JsonSerializer.Serialize(originalModel, options);
-        var deserializedModel = JsonSerializer.Deserialize<TestModelSourceGenerator>(json, options);
+        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorModel>(json, options);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -43,14 +43,14 @@ public class JsonDateTimeFormatConverterTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_Reflection_TestModel_WithNullValues_ShouldMatchOriginal()
+    public void ReflectionBased_CompleteModel_WithFormatConverter_WithNullValues()
     {
         // Arrange
         var options = new JsonSerializerOptions
         {
             WriteIndented = true
         };
-        var originalModel = new TestModelSourceGenerator
+        var originalModel = new SourceGeneratorModel
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = null,
@@ -68,7 +68,7 @@ public class JsonDateTimeFormatConverterTests
 
         // Act
         var json = JsonSerializer.Serialize(originalModel, options);
-        var deserializedModel = JsonSerializer.Deserialize<TestModelSourceGenerator>(json, options);
+        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorModel>(json, options);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -80,12 +80,12 @@ public class JsonDateTimeFormatConverterTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_SourceGenerator_TestModel_ShouldMatchOriginal()
+    public void SourceGenerator_CompleteModel_WithFormatConverter()
     {
         // Arrange
-        var testModelType = typeof(TestModelSourceGenerator);
+        var testModelType = typeof(SourceGeneratorModel);
         var context = TestModelSourceGeneratorJsonSerializerContext.Default;
-        var originalModel = new TestModelSourceGenerator
+        var originalModel = new SourceGeneratorModel
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
@@ -103,7 +103,7 @@ public class JsonDateTimeFormatConverterTests
 
         // Act
         var json = JsonSerializer.Serialize(originalModel, testModelType, context);
-        var deserializedModel = (TestModelSourceGenerator?)JsonSerializer.Deserialize(json, testModelType, context);
+        var deserializedModel = (SourceGeneratorModel?)JsonSerializer.Deserialize(json, testModelType, context);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -115,7 +115,7 @@ public class JsonDateTimeFormatConverterTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_SourceGenerator_TypeInfoResolver_TestModel_ShouldMatchOriginal()
+    public void SourceGenerator_WithResolver_WithAttribute_UsingOptions()
     {
         // Arrange
         var sourceGenOptions = new JsonSerializerOptions
@@ -123,7 +123,7 @@ public class JsonDateTimeFormatConverterTests
             WriteIndented = true,
             TypeInfoResolver = new DateTimeConverterResolver(TestModelSourceGeneratorJsonSerializerContext.Default)
         };
-        var originalModel = new TestModelSourceGeneratorAttributes
+        var originalModel = new SourceGeneratorWithResolverModel
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
@@ -141,7 +141,7 @@ public class JsonDateTimeFormatConverterTests
 
         // Act
         var json = JsonSerializer.Serialize(originalModel, sourceGenOptions);
-        var deserializedModel = JsonSerializer.Deserialize<TestModelSourceGenerator>(json, sourceGenOptions);
+        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorModel>(json, sourceGenOptions);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -153,12 +153,12 @@ public class JsonDateTimeFormatConverterTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_SourceGeneratorWithResolver_JsonSerializerContext_TestModel_ShouldMatchOriginal()
+    public void SourceGenerator_WithResolver_WithAttribute_UsingContext()
     {
         // Arrange
-        var testModelType = typeof(TestModelSourceGeneratorAttributes);
+        var testModelType = typeof(SourceGeneratorWithResolverModel);
         var context = new DateTimeConverterResolver(TestModelSourceGeneratorJsonSerializerContext.Default);
-        var originalModel = new TestModelSourceGeneratorAttributes
+        var originalModel = new SourceGeneratorWithResolverModel
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
@@ -176,7 +176,7 @@ public class JsonDateTimeFormatConverterTests
 
         // Act
         var json = JsonSerializer.Serialize(originalModel, testModelType, context);
-        var deserializedModel = (TestModelSourceGeneratorAttributes?)JsonSerializer.Deserialize(json, testModelType, context);
+        var deserializedModel = (SourceGeneratorWithResolverModel?)JsonSerializer.Deserialize(json, testModelType, context);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -188,12 +188,12 @@ public class JsonDateTimeFormatConverterTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_SourceGenerator_TestModel_WithNullValues_ShouldMatchOriginal()
+    public void SourceGenerator_CompleteModel_WithFormatConverter_WithNullValues()
     {
         // Arrange
-        var testModelType = typeof(TestModelSourceGenerator);
+        var testModelType = typeof(SourceGeneratorModel);
         var context = TestModelSourceGeneratorJsonSerializerContext.Default;
-        var originalModel = new TestModelSourceGenerator
+        var originalModel = new SourceGeneratorModel
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = null,
@@ -211,7 +211,7 @@ public class JsonDateTimeFormatConverterTests
 
         // Act
         var json = JsonSerializer.Serialize(originalModel, testModelType, context);
-        var deserializedModel = (TestModelSourceGenerator?)JsonSerializer.Deserialize(json, testModelType, context);
+        var deserializedModel = (SourceGeneratorModel?)JsonSerializer.Deserialize(json, testModelType, context);
 
         // Assert
         Assert.NotNull(deserializedModel);

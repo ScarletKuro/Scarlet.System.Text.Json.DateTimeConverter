@@ -6,7 +6,7 @@ namespace Scarlet.System.Text.Json.DateTimeConverter.Tests;
 public class JsonDateTimeConverterAttributeTests
 {
     [Fact]
-    public void SerializeAndDeserialize_DateTime_ShouldMatchOriginal()
+    public void ReflectionBased_DateTime_WithAttribute()
     {
         // Arrange
         var options = new JsonSerializerOptions
@@ -25,7 +25,7 @@ public class JsonDateTimeConverterAttributeTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_NullableDateTime_ShouldMatchOriginal()
+    public void ReflectionBased_NullableDateTime_WithAttribute()
     {
         // Arrange
         var options = new JsonSerializerOptions
@@ -44,7 +44,7 @@ public class JsonDateTimeConverterAttributeTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_DateTimeOffset_ShouldMatchOriginal()
+    public void ReflectionBased_DateTimeOffset_WithAttribute()
     {
         // Arrange
         var options = new JsonSerializerOptions
@@ -63,7 +63,7 @@ public class JsonDateTimeConverterAttributeTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_NullableDateTimeOffset_ShouldMatchOriginal()
+    public void ReflectionBased_NullableDateTimeOffset_WithAttribute()
     {
         // Arrange
         var options = new JsonSerializerOptions
@@ -82,14 +82,14 @@ public class JsonDateTimeConverterAttributeTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_TestModel_ShouldMatchOriginal()
+    public void ReflectionBased_CompleteModel_WithAttribute()
     {
         // Arrange
         var options = new JsonSerializerOptions
         {
             WriteIndented = true
         };
-        var originalModel = new TestModelJsonDateTimeConverter
+        var originalModel = new ReflectionBasedModel
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
@@ -107,7 +107,7 @@ public class JsonDateTimeConverterAttributeTests
 
         // Act
         var json = JsonSerializer.Serialize(originalModel, options);
-        var deserializedModel = JsonSerializer.Deserialize<TestModelJsonDateTimeConverter>(json, options);
+        var deserializedModel = JsonSerializer.Deserialize<ReflectionBasedModel>(json, options);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -119,14 +119,14 @@ public class JsonDateTimeConverterAttributeTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_TestModel_WithNullValues_ShouldMatchOriginal()
+    public void ReflectionBased_CompleteModel_WithAttribute_WithNullValues()
     {
         // Arrange
         var options = new JsonSerializerOptions
         {
             WriteIndented = true
         };
-        var originalModel = new TestModelJsonDateTimeConverter
+        var originalModel = new ReflectionBasedModel
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = null,
@@ -144,7 +144,7 @@ public class JsonDateTimeConverterAttributeTests
 
         // Act
         var json = JsonSerializer.Serialize(originalModel, options);
-        var deserializedModel = JsonSerializer.Deserialize<TestModelJsonDateTimeConverter>(json, options);
+        var deserializedModel = JsonSerializer.Deserialize<ReflectionBasedModel>(json, options);
 
         // Assert
         Assert.NotNull(deserializedModel);

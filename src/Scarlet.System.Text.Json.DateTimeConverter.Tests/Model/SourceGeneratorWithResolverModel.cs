@@ -1,6 +1,11 @@
 ﻿namespace Scarlet.System.Text.Json.DateTimeConverter.Tests.Model;
 
-public class TestModelJsonDateTimeConverter
+/// <summary>
+/// Test model demonstrating JsonDateTimeConverter attribute usage with DateTimeConverterResolver (.NET 9+).
+/// This model uses the JsonDateTimeConverter attribute which, when combined with DateTimeConverterResolver,
+/// works with source generators in .NET 9 and above.
+/// </summary>
+public class SourceGeneratorWithResolverModel
 {
     [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss")]
     public DateTime DateTimeProperty { get; set; }

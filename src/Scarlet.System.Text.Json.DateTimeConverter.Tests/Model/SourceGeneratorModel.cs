@@ -2,7 +2,12 @@
 
 namespace Scarlet.System.Text.Json.DateTimeConverter.Tests.Model;
 
-public class TestModelSourceGenerator
+/// <summary>
+/// Test model demonstrating JsonDateTimeFormatConverter usage with source generators.
+/// This model uses the JsonConverter attribute with JsonDateTimeFormatConverter which works
+/// with both source generator and reflection-based serialization.
+/// </summary>
+public class SourceGeneratorModel
 {
     [JsonConverter(typeof(JsonDateTimeFormatConverter<JsonDateTimeFormat.DateTimeFormat>))]
     public DateTime DateTimeProperty { get; set; }
