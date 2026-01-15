@@ -220,7 +220,7 @@ var options = new JsonSerializerOptions
 };
 ```
 - Implements `IJsonTypeInfoResolver` and extends `JsonSerializerContext`
-- Uses `JsonPropertyInfo.AttributeProvider` to read attributes
+- Uses `JsonPropertyInfo.AttributeProvider` (populated by source generators in .NET 9+) to read attributes
 - Enables attribute syntax with source generators
 
 #### 3. Factory Helper

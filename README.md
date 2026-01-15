@@ -183,7 +183,7 @@ var deserializedOrder = (Order?)JsonSerializer.Deserialize(json, typeof(Order), 
 
 ### Source Generator with Attribute and Resolver (.NET 9+)
 
-**.NET 9+** introduces `AttributeProvider` on `JsonPropertyInfo`, enabling attribute-based syntax with source generators via `DateTimeConverterResolver`.
+**.NET 9+** populates `JsonPropertyInfo.AttributeProvider` in source generators, enabling attribute-based syntax with `DateTimeConverterResolver`.
 
 ```csharp
 using Scarlet.System.Text.Json.DateTimeConverter;
@@ -319,7 +319,7 @@ This is a limitation of source generators not supporting constructor parameters 
 
 ### .NET 9+ Resolver Requirement
 
-`DateTimeConverterResolver` **only works on .NET 9+** because it relies on `JsonPropertyInfo.AttributeProvider`, which was added in .NET 9.
+`DateTimeConverterResolver` **only works on .NET 9+** because, while `JsonPropertyInfo.AttributeProvider` exists in .NET 7-8, it is not populated by source generators until .NET 9+. See [runtime#100095](https://github.com/dotnet/runtime/issues/100095) and [runtime#102078](https://github.com/dotnet/runtime/issues/102078) for details.
 
 ---
 
