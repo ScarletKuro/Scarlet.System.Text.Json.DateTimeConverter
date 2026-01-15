@@ -3,6 +3,7 @@
 [![Nuget](https://img.shields.io/nuget/v/Scarlet.System.Text.Json.DateTimeConverter?color=ff4081&logo=nuget)](https://www.nuget.org/packages/Scarlet.System.Text.Json.DateTimeConverter)
 [![Nuget](https://img.shields.io/nuget/dt/Scarlet.System.Text.Json.DateTimeConverter?color=ff4081&label=nuget%20downloads&logo=nuget)](https://www.nuget.org/packages/Scarlet.System.Text.Json.DateTimeConverter)
 [![GitHub](https://img.shields.io/github/license/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter?color=594ae2&logo=github)](https://github.com/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter/blob/master/LICENSE)
+[![codecov](https://codecov.io/gh/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter/graph/badge.svg?token=6BNZEMSA7X)](https://codecov.io/gh/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter)
 
 A flexible and powerful library for customizing `DateTime`, `DateTimeOffset`, `DateOnly`, and `TimeOnly` serialization in System.Text.Json, with full support for both reflection-based and source generator approaches.
 
