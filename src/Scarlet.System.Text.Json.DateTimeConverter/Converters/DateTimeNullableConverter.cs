@@ -26,11 +26,6 @@ internal sealed class DateTimeNullableConverter : JsonConverter<DateTime?>
     /// <returns>The converted nullable <see cref="DateTime"/> object, or null if the JSON token is null.</returns>
     public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.Null)
-        {
-            return null;
-        }
-
         if (reader.TokenType == JsonTokenType.String)
         {
             if (DateTime.TryParseExact(reader.GetString(), _format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))

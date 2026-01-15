@@ -26,11 +26,6 @@ internal sealed class TimeOnlyNullableConverter : JsonConverter<TimeOnly?>
     /// <returns>The converted nullable <see cref="TimeOnly"/> object, or null if the JSON token is null.</returns>
     public override TimeOnly? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.Null)
-        {
-            return null;
-        }
-
         if (reader.TokenType == JsonTokenType.String)
         {
             if (TimeOnly.TryParseExact(reader.GetString(), _format, CultureInfo.InvariantCulture, DateTimeStyles.None, out TimeOnly time))

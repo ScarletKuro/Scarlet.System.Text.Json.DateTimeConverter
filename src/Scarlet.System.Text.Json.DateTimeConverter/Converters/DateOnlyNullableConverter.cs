@@ -26,11 +26,6 @@ internal sealed class DateOnlyNullableConverter : JsonConverter<DateOnly?>
     /// <returns>The converted nullable <see cref="DateOnly"/> object, or null if the JSON token is null.</returns>
     public override DateOnly? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.Null)
-        {
-            return null;
-        }
-
         if (reader.TokenType == JsonTokenType.String)
         {
             if (DateOnly.TryParseExact(reader.GetString(), _format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly date))

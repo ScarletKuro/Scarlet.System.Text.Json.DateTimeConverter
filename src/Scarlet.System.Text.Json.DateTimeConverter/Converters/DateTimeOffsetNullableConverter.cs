@@ -26,11 +26,6 @@ internal sealed class DateTimeOffsetNullableConverter : JsonConverter<DateTimeOf
     /// <returns>The converted nullable <see cref="DateTimeOffset"/> object, or null if the JSON token is null.</returns>
     public override DateTimeOffset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.Null)
-        {
-            return null;
-        }
-
         if (reader.TokenType == JsonTokenType.String)
         {
             if (DateTimeOffset.TryParseExact(reader.GetString(), _format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset date))
