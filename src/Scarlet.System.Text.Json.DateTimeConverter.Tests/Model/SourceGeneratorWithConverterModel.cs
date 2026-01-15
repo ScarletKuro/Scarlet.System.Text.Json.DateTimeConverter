@@ -20,6 +20,18 @@ public class SourceGeneratorWithConverterModel
 
     [JsonConverter(typeof(JsonDateTimeFormatConverter<JsonDateTimeFormat.DateTimeOffsetFormat>))]
     public DateTimeOffset? NullableDateTimeOffsetProperty { get; set; }
+
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<JsonDateTimeFormat.DateOnlyFormat>))]
+    public DateOnly DateOnlyProperty { get; set; }
+
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<JsonDateTimeFormat.DateOnlyFormat>))]
+    public DateOnly? NullableDateOnlyProperty { get; set; }
+
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<JsonDateTimeFormat.TimeOnlyFormat>))]
+    public TimeOnly TimeOnlyProperty { get; set; }
+
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<JsonDateTimeFormat.TimeOnlyFormat>))]
+    public TimeOnly? NullableTimeOnlyProperty { get; set; }
 }
 
 internal class JsonDateTimeFormat
@@ -31,5 +43,13 @@ internal class JsonDateTimeFormat
     internal class DateTimeFormat : IJsonDateTimeFormat
     {
         public static string Format => "yyyy-MM-ddTHH:mm:ss";
+    }
+    internal class DateOnlyFormat : IJsonDateTimeFormat
+    {
+        public static string Format => "MM/dd/yyyy";
+    }
+    internal class TimeOnlyFormat : IJsonDateTimeFormat
+    {
+        public static string Format => "HH.mm.ss";
     }
 }

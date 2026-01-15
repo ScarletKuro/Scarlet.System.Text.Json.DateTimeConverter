@@ -4,7 +4,7 @@
 [![Nuget](https://img.shields.io/nuget/dt/Scarlet.System.Text.Json.DateTimeConverter?color=ff4081&label=nuget%20downloads&logo=nuget)](https://www.nuget.org/packages/Scarlet.System.Text.Json.DateTimeConverter)
 [![GitHub](https://img.shields.io/github/license/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter?color=594ae2&logo=github)](https://github.com/ScarletKuro/Scarlet.System.Text.Json.DateTimeConverter/blob/master/LICENSE)
 
-A flexible and powerful library for customizing `DateTime` and `DateTimeOffset` serialization in System.Text.Json, with full support for both reflection-based and source generator approaches.
+A flexible and powerful library for customizing `DateTime`, `DateTimeOffset`, `DateOnly`, and `TimeOnly` serialization in System.Text.Json, with full support for both reflection-based and source generator approaches.
 
 ## Table of Contents
 
@@ -24,7 +24,7 @@ A flexible and powerful library for customizing `DateTime` and `DateTimeOffset` 
 
 ## Overview
 
-This package provides four ways to specify custom date formats for `DateTime`, `DateTimeOffset`, and their nullable counterparts when serializing and deserializing JSON using `System.Text.Json`:
+This package provides four ways to specify custom date formats for `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly`, and their nullable counterparts when serializing and deserializing JSON using `System.Text.Json`:
 
 1. **`JsonDateTimeConverterAttribute`** - Simple attribute-based approach (reflection only, or .NET 9+ with resolver but produces warnings)
 2. **`JsonDateTimeFormatAttribute`** - Clean attribute for source generators with .NET 9+ resolver (no warnings)
@@ -102,6 +102,12 @@ public class Order
 
     [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss.fffZ")]
     public DateTimeOffset ShippedAt { get; set; }
+
+    [JsonDateTimeConverter("MM/dd/yyyy")]
+    public DateOnly DeliveryDate { get; set; }
+
+    [JsonDateTimeConverter("HH:mm")]
+    public TimeOnly DeliveryTime { get; set; }
 }
 
 // Usage
@@ -109,12 +115,14 @@ var order = new Order
 {
     OrderDate = new DateTime(2026, 1, 15),
     ProcessedDate = new DateTime(2026, 1, 15, 14, 30, 0),
-    ShippedAt = DateTimeOffset.UtcNow
+    ShippedAt = DateTimeOffset.UtcNow,
+    DeliveryDate = new DateOnly(2026, 1, 20),
+    DeliveryTime = new TimeOnly(10, 30)
 };
 
 string json = JsonSerializer.Serialize(order);
 Console.WriteLine(json);
-// Output: {"OrderDate":"2026-01-15","ProcessedDate":"2026-01-15T14:30:00","ShippedAt":"2026-01-15T14:30:00.123Z"}
+// Output: {"OrderDate":"2026-01-15","ProcessedDate":"2026-01-15T14:30:00","ShippedAt":"2026-01-15T14:30:00.123Z","DeliveryDate":"01/20/2026","DeliveryTime":"10:30"}
 
 var deserializedOrder = JsonSerializer.Deserialize<Order>(json);
 ```
@@ -150,6 +158,12 @@ public class Order
 
     [JsonConverter(typeof(JsonDateTimeFormatConverter<DateFormats.ISO8601>))]
     public DateTimeOffset ShippedAt { get; set; }
+
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<DateFormats.DateOnlySlash>))]
+    public DateOnly DeliveryDate { get; set; }
+
+    [JsonConverter(typeof(JsonDateTimeFormatConverter<DateFormats.TimeOnlyShort>))]
+    public TimeOnly DeliveryTime { get; set; }
 }
 
 // Define your custom date formats
@@ -169,6 +183,16 @@ public static class DateFormats
     {
         public static string Format => "yyyy-MM-ddTHH:mm:ss.fffZ";
     }
+
+    public class DateOnlySlash : IJsonDateTimeFormat
+    {
+        public static string Format => "MM/dd/yyyy";
+    }
+
+    public class TimeOnlyShort : IJsonDateTimeFormat
+    {
+        public static string Format => "HH:mm";
+    }
 }
 
 // Create a JsonSerializerContext for source generation
@@ -181,7 +205,9 @@ var order = new Order
 {
     OrderDate = new DateTime(2026, 1, 15),
     ProcessedDate = new DateTime(2026, 1, 15, 14, 30, 0),
-    ShippedAt = DateTimeOffset.UtcNow
+    ShippedAt = DateTimeOffset.UtcNow,
+    DeliveryDate = new DateOnly(2026, 1, 20),
+    DeliveryTime = new TimeOnly(10, 30)
 };
 
 string json = JsonSerializer.Serialize(order, typeof(Order), OrderJsonContext.Default);
@@ -225,6 +251,12 @@ public class Order
 
     [JsonDateTimeFormat("yyyy-MM-ddTHH:mm:ss.fffZ")]
     public DateTimeOffset ShippedAt { get; set; }
+
+    [JsonDateTimeFormat("MM/dd/yyyy")]
+    public DateOnly DeliveryDate { get; set; }
+
+    [JsonDateTimeFormat("HH:mm")]
+    public TimeOnly DeliveryTime { get; set; }
 }
 
 [JsonSerializable(typeof(Order))]
@@ -427,6 +459,10 @@ This matches standard `System.Text.Json` behavior.
 - `DateTime?`
 - `DateTimeOffset`
 - `DateTimeOffset?`
+- `DateOnly`
+- `DateOnly?`
+- `TimeOnly`
+- `TimeOnly?`
 
 All types support any valid [.NET date and time format string](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings).
 

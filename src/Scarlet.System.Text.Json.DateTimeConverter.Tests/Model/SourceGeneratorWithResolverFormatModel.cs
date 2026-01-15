@@ -18,4 +18,16 @@ public class SourceGeneratorWithResolverFormatModel
 
     [JsonDateTimeFormat("yyyy-MM-ddTHH:mm:ss.fffZ")]
     public DateTimeOffset? NullableDateTimeOffsetProperty { get; set; }
+
+    [JsonDateTimeFormat("MM/dd/yyyy")]
+    public DateOnly DateOnlyProperty { get; set; }
+
+    [JsonDateTimeFormat("MM/dd/yyyy")]
+    public DateOnly? NullableDateOnlyProperty { get; set; }
+
+    [JsonDateTimeFormat("HH.mm.ss")]
+    public TimeOnly TimeOnlyProperty { get; set; }
+
+    [JsonDateTimeFormat("HH.mm.ss")]
+    public TimeOnly? NullableTimeOnlyProperty { get; set; }
 }

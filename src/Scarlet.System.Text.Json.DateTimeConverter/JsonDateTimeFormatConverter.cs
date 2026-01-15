@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace Scarlet.System.Text.Json.DateTimeConverter;
 
 /// <summary>
-/// A JSON converter factory that creates converters for <see cref="DateTime"/> and <see cref="DateTimeOffset"/> types using a specified date format.
+/// A JSON converter factory that creates converters for <see cref="DateTime"/>, <see cref="DateTimeOffset"/>, <see cref="DateOnly"/>, and <see cref="TimeOnly"/> types using a specified date format.
 /// </summary>
 /// <typeparam name="T">The type that implements <see cref="IJsonDateTimeFormat"/> to provide the date format.</typeparam>
 /// <remarks>
@@ -39,7 +39,11 @@ public class JsonDateTimeFormatConverter<T> : JsonConverterFactory where T : IJs
         return typeToConvert == typeof(DateTime) ||
                typeToConvert == typeof(DateTime?) ||
                typeToConvert == typeof(DateTimeOffset) ||
-               typeToConvert == typeof(DateTimeOffset?);
+               typeToConvert == typeof(DateTimeOffset?) ||
+               typeToConvert == typeof(DateOnly) ||
+               typeToConvert == typeof(DateOnly?) ||
+               typeToConvert == typeof(TimeOnly) ||
+               typeToConvert == typeof(TimeOnly?);
     }
 
     /// <summary>

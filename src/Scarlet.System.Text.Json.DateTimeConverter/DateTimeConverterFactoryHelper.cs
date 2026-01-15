@@ -28,6 +28,26 @@ internal static class DateTimeConverterFactoryHelper
             return Converters.DateTimeOffsetNullableConverter.FromFormat(format);
         }
 
+        if (typeToConvert == typeof(DateOnly))
+        {
+            return Converters.DateOnlyConverter.FromFormat(format);
+        }
+
+        if (typeToConvert == typeof(DateOnly?))
+        {
+            return Converters.DateOnlyNullableConverter.FromFormat(format);
+        }
+
+        if (typeToConvert == typeof(TimeOnly))
+        {
+            return Converters.TimeOnlyConverter.FromFormat(format);
+        }
+
+        if (typeToConvert == typeof(TimeOnly?))
+        {
+            return Converters.TimeOnlyNullableConverter.FromFormat(format);
+        }
+
         throw new NotSupportedException($"{typeToConvert.FullName} is not supported by the {nameof(DateTimeConverterFactoryHelper)}.");
     }
 }
