@@ -24,11 +24,12 @@ A flexible and powerful library for customizing `DateTime` and `DateTimeOffset` 
 
 ## Overview
 
-This package provides three ways to specify custom date formats for `DateTime`, `DateTimeOffset`, and their nullable counterparts when serializing and deserializing JSON using `System.Text.Json`:
+This package provides four ways to specify custom date formats for `DateTime`, `DateTimeOffset`, and their nullable counterparts when serializing and deserializing JSON using `System.Text.Json`:
 
-1. **`JsonDateTimeConverterAttribute`** - Simple attribute-based approach (reflection only, or .NET 9+ with resolver)
-2. **`JsonDateTimeFormatConverter<T>`** - Type-safe converter for source generators
-3. **`DateTimeConverterResolver`** - Contract customization for .NET 9+ source generators
+1. **`JsonDateTimeConverterAttribute`** - Simple attribute-based approach (reflection only, or .NET 9+ with resolver but produces warnings)
+2. **`JsonDateTimeFormatAttribute`** - Clean attribute for source generators with .NET 9+ resolver (no warnings)
+3. **`JsonDateTimeFormatConverter<T>`** - Type-safe converter for source generators (all .NET versions)
+4. **`DateTimeConverterResolver`** - Contract customization for .NET 9+ source generators
 
 ## Installation
 
@@ -58,6 +59,26 @@ public class MyModel
 }
 
 var json = JsonSerializer.Serialize(new MyModel { Date = DateTime.Now });
+// Output: {"Date":"2026-01-15"}
+```
+
+**Best for source generators** (.NET 9+, no warnings):
+
+```csharp
+public class MyModel
+{
+    [JsonDateTimeFormat("yyyy-MM-dd")]
+    public DateTime Date { get; set; }
+}
+
+[JsonSerializable(typeof(MyModel))]
+public partial class MyJsonContext : JsonSerializerContext { }
+
+var options = new JsonSerializerOptions
+{
+    TypeInfoResolver = new DateTimeConverterResolver(MyJsonContext.Default)
+};
+var json = JsonSerializer.Serialize(new MyModel { Date = DateTime.Now }, options);
 // Output: {"Date":"2026-01-15"}
 ```
 
@@ -181,9 +202,13 @@ var deserializedOrder = (Order?)JsonSerializer.Deserialize(json, typeof(Order), 
 
 ---
 
-### Source Generator with Attribute and Resolver (.NET 9+)
+### Source Generator with Resolver (.NET 9+)
 
 **.NET 9+** populates `JsonPropertyInfo.AttributeProvider` in source generators, enabling attribute-based syntax with `DateTimeConverterResolver`.
+
+#### Option A: JsonDateTimeFormatAttribute (Recommended - No Warnings)
+
+Use `JsonDateTimeFormatAttribute` for the cleanest experience without SYSLIB1223 warnings:
 
 ```csharp
 using Scarlet.System.Text.Json.DateTimeConverter;
@@ -192,13 +217,13 @@ using System.Text.Json.Serialization;
 
 public class Order
 {
-    [JsonDateTimeConverter("yyyy-MM-dd")]
+    [JsonDateTimeFormat("yyyy-MM-dd")]
     public DateTime OrderDate { get; set; }
 
-    [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss")]
+    [JsonDateTimeFormat("yyyy-MM-ddTHH:mm:ss")]
     public DateTime? ProcessedDate { get; set; }
 
-    [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss.fffZ")]
+    [JsonDateTimeFormat("yyyy-MM-ddTHH:mm:ss.fffZ")]
     public DateTimeOffset ShippedAt { get; set; }
 }
 
@@ -225,11 +250,34 @@ var deserializedOrder = (Order?)JsonSerializer.Deserialize(json, typeof(Order), 
 **✅ Pros:**
 - Clean attribute syntax with source generators
 - AOT-friendly
+- **No SYSLIB1223 warnings**
 - Best of both worlds: readability + performance
 
 **❌ Cons:**
 - **Requires .NET 9+**
 - Slightly more setup (need to wrap context with resolver)
+
+#### Option B: JsonDateTimeConverterAttribute (Backward Compatible - Has Warnings)
+
+You can also use `JsonDateTimeConverterAttribute` (for backward compatibility), but it will produce SYSLIB1223 warnings:
+
+```csharp
+public class Order
+{
+    [JsonDateTimeConverter("yyyy-MM-dd")]  // ⚠️ Produces SYSLIB1223 warning
+    public DateTime OrderDate { get; set; }
+}
+```
+
+The resolver still works, but the source generator will emit warnings because `JsonDateTimeConverterAttribute` derives from `JsonConverterAttribute`.
+
+**✅ Pros:**
+- Works with existing code using `JsonDateTimeConverterAttribute`
+- Backward compatible
+
+**❌ Cons:**
+- Produces SYSLIB1223 warnings during build
+- May confuse users about the warnings
 
 ---
 
@@ -244,7 +292,20 @@ A `JsonConverterAttribute`-derived attribute for specifying date formats directl
 public DateTime Date { get; set; }
 ```
 
-**When to use:** Reflection-based serialization, or .NET 9+ with `DateTimeConverterResolver`.
+**When to use:** Reflection-based serialization. Can also be used with .NET 9+ `DateTimeConverterResolver` but produces SYSLIB1223 warnings.
+
+---
+
+### `JsonDateTimeFormatAttribute` (.NET 9+)
+
+A simple `Attribute`-derived attribute for specifying date formats with source generators (no warnings).
+
+```csharp
+[JsonDateTimeFormat("yyyy-MM-dd")]
+public DateTime Date { get; set; }
+```
+
+**When to use:** .NET 9+ source generators with `DateTimeConverterResolver` (recommended, no warnings).
 
 ---
 
@@ -268,14 +329,14 @@ public DateTime Date { get; set; }
 
 ### `DateTimeConverterResolver` (.NET 9+)
 
-A `JsonSerializerContext` and `IJsonTypeInfoResolver` that enables `JsonDateTimeConverterAttribute` to work with source generators by using contract customization.
+A `JsonSerializerContext` and `IJsonTypeInfoResolver` that enables attribute-based date formatting with source generators by using contract customization.
 
 ```csharp
 var resolver = new DateTimeConverterResolver(MyJsonContext.Default);
 var options = new JsonSerializerOptions { TypeInfoResolver = resolver };
 ```
 
-**When to use:** .NET 9+ source generators with attribute syntax.
+**When to use:** .NET 9+ source generators with `JsonDateTimeFormatAttribute` or `JsonDateTimeConverterAttribute`.
 
 ---
 
@@ -285,10 +346,11 @@ var options = new JsonSerializerOptions { TypeInfoResolver = resolver };
 |----------|---------------------|
 | Reflection-based, any .NET version | `JsonDateTimeConverterAttribute` |
 | Source generator, .NET 6-8 | `JsonDateTimeFormatConverter<T>` |
-| Source generator, .NET 9+ | `JsonDateTimeConverterAttribute` + `DateTimeConverterResolver` |
+| Source generator, .NET 9+ (no warnings) | `JsonDateTimeFormatAttribute` + `DateTimeConverterResolver` |
+| Source generator, .NET 9+ (backward compat) | `JsonDateTimeConverterAttribute` + `DateTimeConverterResolver` (⚠️ warnings) |
 | Need reusable formats across many properties | `JsonDateTimeFormatConverter<T>` (define format class once) |
 | Prototyping/simple projects | `JsonDateTimeConverterAttribute` (simplest) |
-| AOT compilation | `JsonDateTimeFormatConverter<T>` or .NET 9+ resolver |
+| AOT compilation | `JsonDateTimeFormatConverter<T>` or .NET 9+ resolver with attributes |
 
 ---
 
@@ -300,7 +362,29 @@ var options = new JsonSerializerOptions { TypeInfoResolver = resolver };
 
 > "Attributes deriving from JsonConverterAttribute are not supported by the source generator."
 
-**Solution:** Use `JsonDateTimeFormatConverter<T>` instead, or upgrade to .NET 9+.
+**Solution:** Use `JsonDateTimeFormatConverter<T>` instead, or upgrade to .NET 9+ and use `JsonDateTimeFormatAttribute` with `DateTimeConverterResolver` (no warnings).
+
+---
+
+### SYSLIB1223 Warning with JsonDateTimeConverterAttribute (.NET 9+ Source Generators)
+
+When using `JsonDateTimeConverterAttribute` with source generators in .NET 9+, you'll get SYSLIB1223 warnings:
+
+> "Attributes deriving from JsonConverterAttribute are not supported by the source generator."
+
+This happens because `JsonDateTimeConverterAttribute` derives from `JsonConverterAttribute`. The code still works with `DateTimeConverterResolver`, but the warnings may be confusing.
+
+**Solution:** Use `JsonDateTimeFormatAttribute` instead, which derives only from `Attribute` and produces no warnings:
+
+```csharp
+// ❌ Produces warnings (but still works)
+[JsonDateTimeConverter("yyyy-MM-dd")]
+public DateTime Date { get; set; }
+
+// ✅ No warnings
+[JsonDateTimeFormat("yyyy-MM-dd")]
+public DateTime Date { get; set; }
+```
 
 ---
 

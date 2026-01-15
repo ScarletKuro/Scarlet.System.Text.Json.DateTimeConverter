@@ -8,7 +8,7 @@ This document provides guidance for AI agents and developers working on the **Sc
 
 ### Key Features
 
-- Custom date/time format attributes (`JsonDateTimeConverterAttribute`)
+- Custom date/time format attributes (`JsonDateTimeConverterAttribute` for reflection, `JsonDateTimeFormatAttribute` for source generators)
 - Source generator-compatible format converters (`JsonDateTimeFormatConverter<T>`)
 - .NET 9+ contract customization resolver (`DateTimeConverterResolver`)
 - Support for `DateTime`, `DateTimeOffset`, and nullable variants
@@ -35,7 +35,8 @@ Scarlet.System.Text.Json.DateTimeConverter/
 │   │   ├── DateTimeConverterFactoryHelper.cs
 │   │   ├── DateTimeConverterResolver.cs  # .NET 9+ contract customization
 │   │   ├── IJsonDateTimeFormat.cs
-│   │   ├── JsonDateTimeConverterAttribute.cs
+│   │   ├── JsonDateTimeConverterAttribute.cs  # For reflection-based serialization
+│   │   ├── JsonDateTimeFormatAttribute.cs     # For source generators (no warnings)
 │   │   ├── JsonDateTimeFormatConverter.cs
 │   │   └── Scarlet.System.Text.Json.DateTimeConverter.csproj
 │   └── Scarlet.System.Text.Json.DateTimeConverter.Tests/
@@ -43,9 +44,11 @@ Scarlet.System.Text.Json.DateTimeConverter/
 │       ├── JsonDateTimeFormatConverterTests.cs
 │       ├── Model/                # Test models
 │       │   ├── ReflectionBasedModel.cs
-│       │   ├── SourceGeneratorModel.cs
-│       │   ├── SourceGeneratorWithResolverModel.cs
-│       │   └── TestModelSourceGeneratorJsonSerializerContext.cs
+│       │   ├── SourceGeneratorWithConverterModel.cs
+│       │   ├── SourceGeneratorWithResolverAttributeModel.cs  # Uses JsonDateTimeConverter (has warnings)
+│       │   ├── SourceGeneratorWithResolverFormatModel.cs     # Uses JsonDateTimeFormat (no warnings)
+│       │   ├── ConverterModelJsonSerializerContext.cs
+│       │   └── ResolverModelJsonSerializerContext.cs
 │       └── Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj
 └── .github/
     └── workflows/                # CI/CD workflows
@@ -201,7 +204,16 @@ public DateTime Date { get; set; }
 ```
 - Derives from `JsonConverterAttribute`
 - Works with reflection-based serialization
-- .NET 9+: Works with source generators via `DateTimeConverterResolver`
+- .NET 9+: Works with source generators via `DateTimeConverterResolver` but produces SYSLIB1223 warnings
+
+**`JsonDateTimeFormatAttribute` (.NET 9+)**
+```csharp
+[JsonDateTimeFormat("yyyy-MM-dd")]
+public DateTime Date { get; set; }
+```
+- Derives from `Attribute` (not `JsonConverterAttribute`)
+- Designed for use with .NET 9+ source generators and `DateTimeConverterResolver`
+- **No SYSLIB1223 warnings** (recommended over `JsonDateTimeConverterAttribute` for source generators)
 
 **`JsonDateTimeFormatConverter<T>`**
 ```csharp
@@ -221,6 +233,7 @@ var options = new JsonSerializerOptions
 ```
 - Implements `IJsonTypeInfoResolver` and extends `JsonSerializerContext`
 - Uses `JsonPropertyInfo.AttributeProvider` (populated by source generators in .NET 9+) to read attributes
+- Supports both `JsonDateTimeFormatAttribute` (no warnings) and `JsonDateTimeConverterAttribute` (backward compatibility)
 - Enables attribute syntax with source generators
 
 #### 3. Factory Helper
@@ -248,11 +261,12 @@ public class DateTimeConverterResolver : JsonSerializerContext, IJsonTypeInfoRes
 
 ### Testing Strategy
 
-Tests verify three distinct usage patterns:
+Tests verify four distinct usage patterns:
 
 1. **Reflection-based** - Uses `JsonDateTimeConverterAttribute` with default `JsonSerializer`
 2. **Source generator with converter** - Uses `JsonDateTimeFormatConverter<T>` with `JsonSerializerContext`
-3. **Source generator with resolver** - Uses `JsonDateTimeConverterAttribute` + `DateTimeConverterResolver` (.NET 9+)
+3. **Source generator with resolver (new attribute)** - Uses `JsonDateTimeFormatAttribute` + `DateTimeConverterResolver` (.NET 9+, no warnings)
+4. **Source generator with resolver (old attribute)** - Uses `JsonDateTimeConverterAttribute` + `DateTimeConverterResolver` (.NET 9+, with SYSLIB1223 warnings for backward compatibility)
 
 Each pattern is tested with:
 - Individual types (`DateTime`, `DateTime?`, `DateTimeOffset`, `DateTimeOffset?`)

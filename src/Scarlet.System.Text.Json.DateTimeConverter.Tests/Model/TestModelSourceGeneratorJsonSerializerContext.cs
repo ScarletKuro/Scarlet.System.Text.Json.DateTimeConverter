@@ -1,8 +1,18 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Scarlet.System.Text.Json.DateTimeConverter.Tests.Model;
 
-[JsonSerializable(typeof(SourceGeneratorModel))]
-[JsonSerializable(typeof(SourceGeneratorWithResolverModel))]
+/// <summary>
+/// JsonSerializerContext for models using JsonConverter attribute with JsonDateTimeFormatConverter.
+/// </summary>
+[JsonSerializable(typeof(SourceGeneratorWithConverterModel))]
 [JsonSourceGenerationOptions(WriteIndented = true)]
-public sealed partial class TestModelSourceGeneratorJsonSerializerContext : JsonSerializerContext;
+public sealed partial class ConverterModelJsonSerializerContext : JsonSerializerContext;
+
+/// <summary>
+/// JsonSerializerContext for models using attributes with DateTimeConverterResolver.
+/// </summary>
+[JsonSerializable(typeof(SourceGeneratorWithResolverAttributeModel))]
+[JsonSerializable(typeof(SourceGeneratorWithResolverFormatModel))]
+[JsonSourceGenerationOptions(WriteIndented = true)]
+public sealed partial class ResolverModelJsonSerializerContext : JsonSerializerContext;

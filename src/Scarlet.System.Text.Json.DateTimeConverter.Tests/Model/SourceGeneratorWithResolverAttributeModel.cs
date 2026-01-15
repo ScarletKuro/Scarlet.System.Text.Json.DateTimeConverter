@@ -2,10 +2,10 @@
 
 /// <summary>
 /// Test model demonstrating JsonDateTimeConverter attribute usage with DateTimeConverterResolver (.NET 9+).
-/// This model uses the JsonDateTimeConverter attribute which, when combined with DateTimeConverterResolver,
-/// works with source generators in .NET 9 and above.
+/// This model uses the JsonDateTimeConverter attribute (derives from JsonConverterAttribute) which, when combined with DateTimeConverterResolver,
+/// works with source generators in .NET 9 and above. Note: This produces SYSLIB1223 warnings but still works.
 /// </summary>
-public class SourceGeneratorWithResolverModel
+public class SourceGeneratorWithResolverAttributeModel
 {
     [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss")]
     public DateTime DateTimeProperty { get; set; }
