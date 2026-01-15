@@ -8,6 +8,7 @@ using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
+using Nuke.Common.Tools.Coverlet;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitHub;
 using Nuke.Common.Utilities.Collections;
@@ -22,7 +23,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     FetchDepth = 0,
     On = [GitHubActionsTrigger.Push],
     PublishArtifacts = true,
-    InvokedTargets = [nameof(Compile), nameof(Pack)])]
+    InvokedTargets = [nameof(Compile), nameof(Test), nameof(Pack)])]
 [GitHubActions(
     "release",
     GitHubActionsImage.UbuntuLatest,
@@ -59,6 +60,7 @@ class Build : NukeBuild
     AbsolutePath TestsDirectory => RootDirectory / "tests";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
     AbsolutePath PackagesDirectory => ArtifactsDirectory / "packages";
+    AbsolutePath CoverageDirectory => ArtifactsDirectory / "coverage";
 
     Target Clean => _ => _
             .Before(Restore)
@@ -104,9 +106,12 @@ class Build : NukeBuild
 
     Target Test => _ => _
         .DependsOn(Compile)
+        .Produces(CoverageDirectory / "*.xml")
         .Executes(() =>
         {
             var projects = Solution.GetAllProjects("*.Tests");
+
+            CoverageDirectory.CreateOrCleanDirectory();
 
             foreach (var project in projects)
             {
@@ -114,6 +119,9 @@ class Build : NukeBuild
                     .SetProjectFile(project.Path)
                     .SetConfiguration(Configuration)
                     .EnableNoBuild()
+                    .EnableCollectCoverage()
+                    .SetCoverletOutputFormat(CoverletOutputFormat.cobertura)
+                    .SetCoverletOutput(CoverageDirectory / $"{project.Name}.xml")
                 );
             }
         });
