@@ -11,7 +11,7 @@ This document provides guidance for AI agents and developers working on the **Sc
 - Custom date/time format attributes (`JsonDateTimeConverterAttribute` for reflection, `JsonDateTimeFormatAttribute` for source generators)
 - Source generator-compatible format converters (`JsonDateTimeFormatConverter<T>`)
 - .NET 9+ contract customization resolver (`DateTimeConverterResolver`)
-- Support for `DateTime`, `DateTimeOffset`, and nullable variants
+- Support for `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly`, and nullable variants
 - Multi-target framework support (.NET 6, 7, 8, 9, 10)
 
 ## Repository Structure
@@ -31,7 +31,11 @@ Scarlet.System.Text.Json.DateTimeConverter/
 │   │   │   ├── DateTimeConverter.cs
 │   │   │   ├── DateTimeNullableConverter.cs
 │   │   │   ├── DateTimeOffsetConverter.cs
-│   │   │   └── DateTimeOffsetNullableConverter.cs
+│   │   │   ├── DateTimeOffsetNullableConverter.cs
+│   │   │   ├── DateOnlyConverter.cs
+│   │   │   ├── DateOnlyNullableConverter.cs
+│   │   │   ├── TimeOnlyConverter.cs
+│   │   │   └── TimeOnlyNullableConverter.cs
 │   │   ├── DateTimeConverterFactoryHelper.cs
 │   │   ├── DateTimeConverterResolver.cs  # .NET 9+ contract customization
 │   │   ├── IJsonDateTimeFormat.cs
@@ -187,11 +191,15 @@ The project uses a standard GitHub workflow:
 
 #### 1. Converters (Internal)
 
-Four internal converter classes handle actual JSON serialization/deserialization:
+Eight internal converter classes handle actual JSON serialization/deserialization:
 - `DateTimeConverter` - for `DateTime`
 - `DateTimeNullableConverter` - for `DateTime?`
 - `DateTimeOffsetConverter` - for `DateTimeOffset`
 - `DateTimeOffsetNullableConverter` - for `DateTimeOffset?`
+- `DateOnlyConverter` - for `DateOnly`
+- `DateOnlyNullableConverter` - for `DateOnly?`
+- `TimeOnlyConverter` - for `TimeOnly`
+- `TimeOnlyNullableConverter` - for `TimeOnly?`
 
 All use `CultureInfo.InvariantCulture` for consistent formatting.
 
@@ -269,7 +277,7 @@ Tests verify four distinct usage patterns:
 4. **Source generator with resolver (old attribute)** - Uses `JsonDateTimeConverterAttribute` + `DateTimeConverterResolver` (.NET 9+, with SYSLIB1223 warnings for backward compatibility)
 
 Each pattern is tested with:
-- Individual types (`DateTime`, `DateTime?`, `DateTimeOffset`, `DateTimeOffset?`)
+- Individual types (`DateTime`, `DateTime?`, `DateTimeOffset`, `DateTimeOffset?`, `DateOnly`, `DateOnly?`, `TimeOnly`, `TimeOnly?`)
 - Complete models
 - Null value handling
 
