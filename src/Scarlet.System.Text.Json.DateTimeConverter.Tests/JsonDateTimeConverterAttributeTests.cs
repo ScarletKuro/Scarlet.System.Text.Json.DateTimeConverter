@@ -82,6 +82,82 @@ public class JsonDateTimeConverterAttributeTests
     }
 
     [Fact]
+    public void ReflectionBased_DateOnly_WithAttribute()
+    {
+        // Arrange
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new JsonDateTimeConverterAttribute("MM/dd/yyyy").CreateConverter(typeof(DateOnly)) }
+        };
+        var originalDate = new DateOnly(2023, 10, 1);
+
+        // Act
+        var json = JsonSerializer.Serialize(originalDate, options);
+        var deserializedDate = JsonSerializer.Deserialize<DateOnly>(json, options);
+
+        // Assert
+        Assert.Equal(originalDate, deserializedDate);
+        Assert.Equal("\"10/01/2023\"", json);
+    }
+
+    [Fact]
+    public void ReflectionBased_NullableDateOnly_WithAttribute()
+    {
+        // Arrange
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new JsonDateTimeConverterAttribute("MM/dd/yyyy").CreateConverter(typeof(DateOnly?)) }
+        };
+        DateOnly? originalDate = new DateOnly(2023, 10, 1);
+
+        // Act
+        var json = JsonSerializer.Serialize(originalDate, options);
+        var deserializedDate = JsonSerializer.Deserialize<DateOnly?>(json, options);
+
+        // Assert
+        Assert.Equal(originalDate, deserializedDate);
+        Assert.Equal("\"10/01/2023\"", json);
+    }
+
+    [Fact]
+    public void ReflectionBased_TimeOnly_WithAttribute()
+    {
+        // Arrange
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new JsonDateTimeConverterAttribute("HH.mm.ss").CreateConverter(typeof(TimeOnly)) }
+        };
+        var originalTime = new TimeOnly(14, 30, 45);
+
+        // Act
+        var json = JsonSerializer.Serialize(originalTime, options);
+        var deserializedTime = JsonSerializer.Deserialize<TimeOnly>(json, options);
+
+        // Assert
+        Assert.Equal(originalTime, deserializedTime);
+        Assert.Equal("\"14.30.45\"", json);
+    }
+
+    [Fact]
+    public void ReflectionBased_NullableTimeOnly_WithAttribute()
+    {
+        // Arrange
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new JsonDateTimeConverterAttribute("HH.mm.ss").CreateConverter(typeof(TimeOnly?)) }
+        };
+        TimeOnly? originalTime = new TimeOnly(14, 30, 45);
+
+        // Act
+        var json = JsonSerializer.Serialize(originalTime, options);
+        var deserializedTime = JsonSerializer.Deserialize<TimeOnly?>(json, options);
+
+        // Assert
+        Assert.Equal(originalTime, deserializedTime);
+        Assert.Equal("\"14.30.45\"", json);
+    }
+
+    [Fact]
     public void ReflectionBased_CompleteModel_WithAttribute()
     {
         // Arrange
@@ -94,14 +170,22 @@ public class JsonDateTimeConverterAttributeTests
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero)
+            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
+            DateOnlyProperty = new DateOnly(2023, 10, 1),
+            NullableDateOnlyProperty = new DateOnly(2023, 10, 1),
+            TimeOnlyProperty = new TimeOnly(14, 30, 45),
+            NullableTimeOnlyProperty = new TimeOnly(14, 30, 45)
         };
         const string expectedJson = """
                                     {
                                       "DateTimeProperty": "2023-10-01T12:00:00",
                                       "NullableDateTimeProperty": "2023-10-01T12:00:00",
                                       "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z"
+                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
+                                      "DateOnlyProperty": "10/01/2023",
+                                      "NullableDateOnlyProperty": "10/01/2023",
+                                      "TimeOnlyProperty": "14.30.45",
+                                      "NullableTimeOnlyProperty": "14.30.45"
                                     }
                                     """;
 
@@ -115,6 +199,10 @@ public class JsonDateTimeConverterAttributeTests
         Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
         Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
         Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
+        Assert.Equal(originalModel.DateOnlyProperty, deserializedModel.DateOnlyProperty);
+        Assert.Equal(originalModel.NullableDateOnlyProperty, deserializedModel.NullableDateOnlyProperty);
+        Assert.Equal(originalModel.TimeOnlyProperty, deserializedModel.TimeOnlyProperty);
+        Assert.Equal(originalModel.NullableTimeOnlyProperty, deserializedModel.NullableTimeOnlyProperty);
         Assert.Equal(expectedJson, json);
     }
 
@@ -131,14 +219,22 @@ public class JsonDateTimeConverterAttributeTests
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = null,
             DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = null
+            NullableDateTimeOffsetProperty = null,
+            DateOnlyProperty = new DateOnly(2023, 10, 1),
+            NullableDateOnlyProperty = null,
+            TimeOnlyProperty = new TimeOnly(14, 30, 45),
+            NullableTimeOnlyProperty = null
         };
         const string expectedJson = """
                                     {
                                       "DateTimeProperty": "2023-10-01T12:00:00",
                                       "NullableDateTimeProperty": null,
                                       "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": null
+                                      "NullableDateTimeOffsetProperty": null,
+                                      "DateOnlyProperty": "10/01/2023",
+                                      "NullableDateOnlyProperty": null,
+                                      "TimeOnlyProperty": "14.30.45",
+                                      "NullableTimeOnlyProperty": null
                                     }
                                     """;
 
@@ -152,6 +248,10 @@ public class JsonDateTimeConverterAttributeTests
         Assert.Null(deserializedModel.NullableDateTimeProperty);
         Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
         Assert.Null(deserializedModel.NullableDateTimeOffsetProperty);
+        Assert.Equal(originalModel.DateOnlyProperty, deserializedModel.DateOnlyProperty);
+        Assert.Null(deserializedModel.NullableDateOnlyProperty);
+        Assert.Equal(originalModel.TimeOnlyProperty, deserializedModel.TimeOnlyProperty);
+        Assert.Null(deserializedModel.NullableTimeOnlyProperty);
         Assert.Equal(expectedJson, json);
     }
 
@@ -169,14 +269,22 @@ public class JsonDateTimeConverterAttributeTests
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero)
+            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
+            DateOnlyProperty = new DateOnly(2023, 10, 1),
+            NullableDateOnlyProperty = new DateOnly(2023, 10, 1),
+            TimeOnlyProperty = new TimeOnly(14, 30, 45),
+            NullableTimeOnlyProperty = new TimeOnly(14, 30, 45)
         };
         const string expectedJson = """
                                     {
                                       "DateTimeProperty": "2023-10-01T12:00:00",
                                       "NullableDateTimeProperty": "2023-10-01T12:00:00",
                                       "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z"
+                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
+                                      "DateOnlyProperty": "10/01/2023",
+                                      "NullableDateOnlyProperty": "10/01/2023",
+                                      "TimeOnlyProperty": "14.30.45",
+                                      "NullableTimeOnlyProperty": "14.30.45"
                                     }
                                     """;
 
@@ -190,6 +298,10 @@ public class JsonDateTimeConverterAttributeTests
         Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
         Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
         Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
+        Assert.Equal(originalModel.DateOnlyProperty, deserializedModel.DateOnlyProperty);
+        Assert.Equal(originalModel.NullableDateOnlyProperty, deserializedModel.NullableDateOnlyProperty);
+        Assert.Equal(originalModel.TimeOnlyProperty, deserializedModel.TimeOnlyProperty);
+        Assert.Equal(originalModel.NullableTimeOnlyProperty, deserializedModel.NullableTimeOnlyProperty);
         Assert.Equal(expectedJson, json);
     }
 
@@ -207,14 +319,22 @@ public class JsonDateTimeConverterAttributeTests
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = null,
             DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = null
+            NullableDateTimeOffsetProperty = null,
+            DateOnlyProperty = new DateOnly(2023, 10, 1),
+            NullableDateOnlyProperty = null,
+            TimeOnlyProperty = new TimeOnly(14, 30, 45),
+            NullableTimeOnlyProperty = null
         };
         const string expectedJson = """
                                     {
                                       "DateTimeProperty": "2023-10-01T12:00:00",
                                       "NullableDateTimeProperty": null,
                                       "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": null
+                                      "NullableDateTimeOffsetProperty": null,
+                                      "DateOnlyProperty": "10/01/2023",
+                                      "NullableDateOnlyProperty": null,
+                                      "TimeOnlyProperty": "14.30.45",
+                                      "NullableTimeOnlyProperty": null
                                     }
                                     """;
 
@@ -228,6 +348,10 @@ public class JsonDateTimeConverterAttributeTests
         Assert.Null(deserializedModel.NullableDateTimeProperty);
         Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
         Assert.Null(deserializedModel.NullableDateTimeOffsetProperty);
+        Assert.Equal(originalModel.DateOnlyProperty, deserializedModel.DateOnlyProperty);
+        Assert.Null(deserializedModel.NullableDateOnlyProperty);
+        Assert.Equal(originalModel.TimeOnlyProperty, deserializedModel.TimeOnlyProperty);
+        Assert.Null(deserializedModel.NullableTimeOnlyProperty);
         Assert.Equal(expectedJson, json);
     }
 
@@ -242,14 +366,22 @@ public class JsonDateTimeConverterAttributeTests
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero)
+            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
+            DateOnlyProperty = new DateOnly(2023, 10, 1),
+            NullableDateOnlyProperty = new DateOnly(2023, 10, 1),
+            TimeOnlyProperty = new TimeOnly(14, 30, 45),
+            NullableTimeOnlyProperty = new TimeOnly(14, 30, 45)
         };
         const string expectedJson = """
                                     {
                                       "DateTimeProperty": "2023-10-01T12:00:00",
                                       "NullableDateTimeProperty": "2023-10-01T12:00:00",
                                       "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z"
+                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
+                                      "DateOnlyProperty": "10/01/2023",
+                                      "NullableDateOnlyProperty": "10/01/2023",
+                                      "TimeOnlyProperty": "14.30.45",
+                                      "NullableTimeOnlyProperty": "14.30.45"
                                     }
                                     """;
 
@@ -263,6 +395,10 @@ public class JsonDateTimeConverterAttributeTests
         Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
         Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
         Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
+        Assert.Equal(originalModel.DateOnlyProperty, deserializedModel.DateOnlyProperty);
+        Assert.Equal(originalModel.NullableDateOnlyProperty, deserializedModel.NullableDateOnlyProperty);
+        Assert.Equal(originalModel.TimeOnlyProperty, deserializedModel.TimeOnlyProperty);
+        Assert.Equal(originalModel.NullableTimeOnlyProperty, deserializedModel.NullableTimeOnlyProperty);
         Assert.Equal(expectedJson, json);
     }
 
@@ -277,14 +413,22 @@ public class JsonDateTimeConverterAttributeTests
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = null,
             DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = null
+            NullableDateTimeOffsetProperty = null,
+            DateOnlyProperty = new DateOnly(2023, 10, 1),
+            NullableDateOnlyProperty = null,
+            TimeOnlyProperty = new TimeOnly(14, 30, 45),
+            NullableTimeOnlyProperty = null
         };
         const string expectedJson = """
                                     {
                                       "DateTimeProperty": "2023-10-01T12:00:00",
                                       "NullableDateTimeProperty": null,
                                       "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": null
+                                      "NullableDateTimeOffsetProperty": null,
+                                      "DateOnlyProperty": "10/01/2023",
+                                      "NullableDateOnlyProperty": null,
+                                      "TimeOnlyProperty": "14.30.45",
+                                      "NullableTimeOnlyProperty": null
                                     }
                                     """;
 
@@ -298,6 +442,10 @@ public class JsonDateTimeConverterAttributeTests
         Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
         Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
         Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
+        Assert.Equal(originalModel.DateOnlyProperty, deserializedModel.DateOnlyProperty);
+        Assert.Null(deserializedModel.NullableDateOnlyProperty);
+        Assert.Equal(originalModel.TimeOnlyProperty, deserializedModel.TimeOnlyProperty);
+        Assert.Null(deserializedModel.NullableTimeOnlyProperty);
         Assert.Equal(expectedJson, json);
     }
 }
