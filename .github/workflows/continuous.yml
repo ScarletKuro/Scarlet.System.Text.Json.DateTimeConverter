@@ -23,7 +23,7 @@ jobs:
     name: ubuntu-latest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: 'Cache: .nuke/temp, ~/.nuget/packages'
@@ -33,10 +33,21 @@ jobs:
             .nuke/temp
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
-      - name: 'Run: Compile, Pack'
-        run: ./build.cmd Compile Pack
+      - name: 'Run: Compile, Test, Pack'
+        run: ./build.cmd Compile Test Pack
+      - name: 'Upload coverage to Codecov'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: artifacts/coverage/*.xml
+          fail_ci_if_error: false
+      - name: 'Publish: coverage'
+        uses: actions/upload-artifact@v5
+        with:
+          name: coverage
+          path: artifacts/coverage
       - name: 'Publish: packages'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: packages
           path: artifacts/packages
