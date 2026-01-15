@@ -7,6 +7,7 @@
 /// </summary>
 public class SourceGeneratorWithResolverAttributeModel
 {
+#pragma warning disable SYSLIB1223
     [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss")]
     public DateTime DateTimeProperty { get; set; }
 
@@ -18,4 +19,5 @@ public class SourceGeneratorWithResolverAttributeModel
 
     [JsonDateTimeConverter("yyyy-MM-ddTHH:mm:ss.fffZ")]
     public DateTimeOffset? NullableDateTimeOffsetProperty { get; set; }
+#pragma warning restore SYSLIB1223
 }
