@@ -39,9 +39,6 @@ dotnet add package Scarlet.System.Text.Json.DateTimeConverter
 
 ## Prerequisites
 
-- **.NET 6+** for basic functionality
-- **.NET 9+** for `DateTimeConverterResolver` (System.Text.Json source generator attribute support)
-
 | Target Framework | Reflection + Attribute | System.Text.Json Source Generator + Converter | System.Text.Json Source Generator + Attribute + Resolver |
 |-----------------|:---------------------:|:------------------------------------------:|:------------------------------------------------------:|
 | .NET 6, 7, 8    | ✅ | ✅ | ❌ |
@@ -432,7 +429,7 @@ public class Format1 : IJsonDateTimeFormat { public static string Format => "yyy
 public class Format2 : IJsonDateTimeFormat { public static string Format => "yyyy-MM-ddTHH:mm:ss"; }
 ```
 
-This is a limitation of System.Text.Json source generator not supporting constructor parameters or static analyzer tricks.
+This is a limitation of System.Text.Json source generator not supporting constructor parameters for converters.
 
 ---
 
