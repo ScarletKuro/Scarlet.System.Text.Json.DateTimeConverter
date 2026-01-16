@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Scarlet.System.Text.Json.DateTimeConverter;
 
 /// <summary>
@@ -29,7 +31,7 @@ namespace Scarlet.System.Text.Json.DateTimeConverter;
 /// </code>
 /// </example>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-public sealed class JsonDateTimeFormatAttribute : Attribute
+public sealed class JsonDateTimeFormatAttribute : JsonAttribute
 {
     /// <summary>
     /// Gets the date format string.
