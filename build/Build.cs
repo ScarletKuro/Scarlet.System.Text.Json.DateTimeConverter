@@ -17,21 +17,6 @@ using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
-[GitHubActions(
-    "continuous",
-    GitHubActionsImage.UbuntuLatest,
-    FetchDepth = 0,
-    On = [GitHubActionsTrigger.Push],
-    PublishArtifacts = true,
-    InvokedTargets = [nameof(Compile), nameof(Test), nameof(Pack)])]
-[GitHubActions(
-    "release",
-    GitHubActionsImage.UbuntuLatest,
-    FetchDepth = 0,
-    OnPushTags = [@"\d+\.\d+\.\d+"],
-    PublishArtifacts = true,
-    InvokedTargets = [nameof(Push), nameof(PushGithubNuget)],
-    ImportSecrets = [nameof(NugetKey), nameof(GithubToken)])]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
