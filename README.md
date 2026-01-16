@@ -131,7 +131,7 @@ var deserializedOrder = JsonSerializer.Deserialize<Order>(json);
 
 **❌ Cons:**
 - Only works with reflection-based serialization
-- Produces SYSLIB1223 warning with source generators (.NET 6-8)
+- Produces SYSLIB1223 warning with source generators
 - No AOT (Ahead-of-Time) compilation support
 
 ---
