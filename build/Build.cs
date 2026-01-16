@@ -61,6 +61,7 @@ class Build : NukeBuild
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
     AbsolutePath PackagesDirectory => ArtifactsDirectory / "packages";
     AbsolutePath CoverageDirectory => ArtifactsDirectory / "coverage";
+    AbsolutePath TestResultsDirectory => ArtifactsDirectory / "test-results";
 
     Target Clean => _ => _
             .Before(Restore)
@@ -107,11 +108,13 @@ class Build : NukeBuild
     Target Test => _ => _
         .DependsOn(Compile)
         .Produces(CoverageDirectory / "*.xml")
+        .Produces(TestResultsDirectory / "*.xml")
         .Executes(() =>
         {
             var projects = Solution.GetAllProjects("*.Tests");
 
             CoverageDirectory.CreateOrCleanDirectory();
+            TestResultsDirectory.CreateOrCleanDirectory();
 
             foreach (var project in projects)
             {
@@ -122,6 +125,7 @@ class Build : NukeBuild
                     .EnableCollectCoverage()
                     .SetCoverletOutputFormat(CoverletOutputFormat.cobertura)
                     .SetCoverletOutput(CoverageDirectory / $"{project.Name}.xml")
+                    .SetLoggers($"junit;LogFilePath={TestResultsDirectory / $"{project.Name}.xml"}")
                 );
             }
         });
