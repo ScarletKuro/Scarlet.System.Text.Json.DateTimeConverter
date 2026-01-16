@@ -5,7 +5,7 @@ namespace Scarlet.System.Text.Json.DateTimeConverter.Tests.Model;
 /// This model uses the JsonDateTimeFormatAttribute (derives from Attribute only) which, when combined with DateTimeConverterResolver,
 /// works with source generators in .NET 9 and above without producing SYSLIB1223 warnings.
 /// </summary>
-public class SourceGeneratorWithResolverFormatModel
+public class SourceGeneratorModelWithAttribute
 {
     [JsonDateTimeFormat("yyyy-MM-ddTHH:mm:ss")]
     public DateTime DateTimeProperty { get; set; }

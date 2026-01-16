@@ -3,17 +3,18 @@ using Scarlet.System.Text.Json.DateTimeConverter.Tests.Model;
 
 namespace Scarlet.System.Text.Json.DateTimeConverter.Tests;
 
-public class JsonDateTimeFormatConverterTests
+public partial class SourceGeneratorBasedTests
 {
     [Fact]
-    public void ReflectionBased_CompleteModel_WithFormatConverter()
+    public void SourceGenerator_WithResolver_WithFormatAttribute_UsingOptions()
     {
         // Arrange
-        var options = new JsonSerializerOptions
+        var sourceGenOptions = new JsonSerializerOptions
         {
-            WriteIndented = true
+            WriteIndented = true,
+            TypeInfoResolver = new DateTimeConverterResolver(ResolverModelJsonSerializerContext.Default)
         };
-        var originalModel = new SourceGeneratorWithConverterModel
+        var originalModel = new SourceGeneratorModelWithAttribute
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
@@ -38,8 +39,8 @@ public class JsonDateTimeFormatConverterTests
                                     """;
 
         // Act
-        var json = JsonSerializer.Serialize(originalModel, options);
-        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorWithConverterModel>(json, options);
+        var json = JsonSerializer.Serialize(originalModel, sourceGenOptions);
+        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorModelWithAttribute>(json, sourceGenOptions);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -55,14 +56,15 @@ public class JsonDateTimeFormatConverterTests
     }
 
     [Fact]
-    public void ReflectionBased_CompleteModel_WithFormatConverter_WithNullValues()
+    public void SourceGenerator_WithResolver_WithFormatAttribute_WithNullValues_UsingOptions()
     {
         // Arrange
-        var options = new JsonSerializerOptions
+        var sourceGenOptions = new JsonSerializerOptions
         {
-            WriteIndented = true
+            WriteIndented = true,
+            TypeInfoResolver = new DateTimeConverterResolver(ResolverModelJsonSerializerContext.Default)
         };
-        var originalModel = new SourceGeneratorWithConverterModel
+        var originalModel = new SourceGeneratorModelWithAttribute
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = null,
@@ -87,8 +89,8 @@ public class JsonDateTimeFormatConverterTests
                                     """;
 
         // Act
-        var json = JsonSerializer.Serialize(originalModel, options);
-        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorWithConverterModel>(json, options);
+        var json = JsonSerializer.Serialize(originalModel, sourceGenOptions);
+        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorModelWithAttribute>(json, sourceGenOptions);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -104,59 +106,12 @@ public class JsonDateTimeFormatConverterTests
     }
 
     [Fact]
-    public void SourceGenerator_CompleteModel_WithFormatConverter()
+    public void SourceGenerator_WithResolver_WithFormatAttribute_WithNullValues_UsingContext()
     {
         // Arrange
-        var testModelType = typeof(SourceGeneratorWithConverterModel);
-        var context = ConverterModelJsonSerializerContext.Default;
-        var originalModel = new SourceGeneratorWithConverterModel
-        {
-            DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
-            NullableDateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
-            DateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            NullableDateTimeOffsetProperty = new DateTimeOffset(2023, 10, 1, 12, 0, 0, TimeSpan.Zero),
-            DateOnlyProperty = new DateOnly(2023, 10, 1),
-            NullableDateOnlyProperty = new DateOnly(2023, 10, 1),
-            TimeOnlyProperty = new TimeOnly(14, 30, 45),
-            NullableTimeOnlyProperty = new TimeOnly(14, 30, 45)
-        };
-        const string expectedJson = """
-                                    {
-                                      "DateTimeProperty": "2023-10-01T12:00:00",
-                                      "NullableDateTimeProperty": "2023-10-01T12:00:00",
-                                      "DateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "NullableDateTimeOffsetProperty": "2023-10-01T12:00:00.000Z",
-                                      "DateOnlyProperty": "10/01/2023",
-                                      "NullableDateOnlyProperty": "10/01/2023",
-                                      "TimeOnlyProperty": "14.30.45",
-                                      "NullableTimeOnlyProperty": "14.30.45"
-                                    }
-                                    """;
-
-        // Act
-        var json = JsonSerializer.Serialize(originalModel, testModelType, context);
-        var deserializedModel = (SourceGeneratorWithConverterModel?)JsonSerializer.Deserialize(json, testModelType, context);
-
-        // Assert
-        Assert.NotNull(deserializedModel);
-        Assert.Equal(originalModel.DateTimeProperty, deserializedModel.DateTimeProperty);
-        Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
-        Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
-        Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
-        Assert.Equal(originalModel.DateOnlyProperty, deserializedModel.DateOnlyProperty);
-        Assert.Equal(originalModel.NullableDateOnlyProperty, deserializedModel.NullableDateOnlyProperty);
-        Assert.Equal(originalModel.TimeOnlyProperty, deserializedModel.TimeOnlyProperty);
-        Assert.Equal(originalModel.NullableTimeOnlyProperty, deserializedModel.NullableTimeOnlyProperty);
-        Assert.Equal(expectedJson, json);
-    }
-
-    [Fact]
-    public void SourceGenerator_CompleteModel_WithFormatConverter_WithNullValues()
-    {
-        // Arrange
-        var testModelType = typeof(SourceGeneratorWithConverterModel);
-        var context = ConverterModelJsonSerializerContext.Default;
-        var originalModel = new SourceGeneratorWithConverterModel
+        var testModelType = typeof(SourceGeneratorModelWithAttribute);
+        var context = new DateTimeConverterResolver(ResolverModelJsonSerializerContext.Default);
+        var originalModel = new SourceGeneratorModelWithAttribute
         {
             DateTimeProperty = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc),
             NullableDateTimeProperty = null,
@@ -182,14 +137,14 @@ public class JsonDateTimeFormatConverterTests
 
         // Act
         var json = JsonSerializer.Serialize(originalModel, testModelType, context);
-        var deserializedModel = (SourceGeneratorWithConverterModel?)JsonSerializer.Deserialize(json, testModelType, context);
+        var deserializedModel = (SourceGeneratorModelWithAttribute?)JsonSerializer.Deserialize(json, testModelType, context);
 
         // Assert
         Assert.NotNull(deserializedModel);
         Assert.Equal(originalModel.DateTimeProperty, deserializedModel.DateTimeProperty);
-        Assert.Null(deserializedModel.NullableDateTimeProperty);
+        Assert.Equal(originalModel.NullableDateTimeProperty, deserializedModel.NullableDateTimeProperty);
         Assert.Equal(originalModel.DateTimeOffsetProperty, deserializedModel.DateTimeOffsetProperty);
-        Assert.Null(deserializedModel.NullableDateTimeOffsetProperty);
+        Assert.Equal(originalModel.NullableDateTimeOffsetProperty, deserializedModel.NullableDateTimeOffsetProperty);
         Assert.Equal(originalModel.DateOnlyProperty, deserializedModel.DateOnlyProperty);
         Assert.Null(deserializedModel.NullableDateOnlyProperty);
         Assert.Equal(originalModel.TimeOnlyProperty, deserializedModel.TimeOnlyProperty);
