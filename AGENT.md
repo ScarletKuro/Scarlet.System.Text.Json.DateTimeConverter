@@ -41,11 +41,11 @@ Scarlet.System.Text.Json.DateTimeConverter/
 ### Restore, Build, Test, Pack
 
 ```bash
-dotnet restore src/Scarlet.System.Text.Json.DateTimeConverter.slnx
-dotnet format whitespace src/Scarlet.System.Text.Json.DateTimeConverter.slnx --verify-no-changes
-dotnet format style src/Scarlet.System.Text.Json.DateTimeConverter.slnx --verify-no-changes
-dotnet build src/Scarlet.System.Text.Json.DateTimeConverter.slnx -c Release
-dotnet test src/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release --no-build
+dotnet restore Scarlet.System.Text.Json.DateTimeConverter.slnx
+dotnet format whitespace Scarlet.System.Text.Json.DateTimeConverter.slnx --verify-no-changes
+dotnet format style Scarlet.System.Text.Json.DateTimeConverter.slnx --verify-no-changes
+dotnet build Scarlet.System.Text.Json.DateTimeConverter.slnx -c Release --no-restore
+dotnet test tests/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release --no-build
 dotnet pack src/Scarlet.System.Text.Json.DateTimeConverter/Scarlet.System.Text.Json.DateTimeConverter.csproj -c Release --no-build -o artifacts/packages
 ```
 
@@ -54,7 +54,7 @@ dotnet pack src/Scarlet.System.Text.Json.DateTimeConverter/Scarlet.System.Text.J
 Use the same outputs as CI when validating locally:
 
 ```bash
-dotnet test src/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release --no-build -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/coverage/Scarlet.System.Text.Json.DateTimeConverter.Tests.xml --logger "junit;LogFilePath=../../artifacts/test-results/Scarlet.System.Text.Json.DateTimeConverter.Tests.xml"
+dotnet test tests/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release --no-build -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/coverage/Scarlet.System.Text.Json.DateTimeConverter.Tests.xml --logger "junit;LogFilePath=../../artifacts/test-results/Scarlet.System.Text.Json.DateTimeConverter.Tests.xml"
 ```
 
 Expected artifact folders:
@@ -68,13 +68,13 @@ Expected artifact folders:
 ### Run All Tests
 
 ```bash
-dotnet test src/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release
+dotnet test tests/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release
 ```
 
 ### Run a Specific Test
 
 ```bash
-dotnet test src/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release --filter "FullyQualifiedName~ReflectionBased_DateTime_WithAttribute"
+dotnet test tests/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release --filter "FullyQualifiedName~ReflectionBased_DateTime_WithAttribute"
 ```
 
 ### Test Coverage Focus
@@ -167,8 +167,8 @@ git fetch --unshallow
 ### Formatting Fails
 
 ```bash
-dotnet format whitespace src/Scarlet.System.Text.Json.DateTimeConverter.slnx
-dotnet format style src/Scarlet.System.Text.Json.DateTimeConverter.slnx
+dotnet format whitespace Scarlet.System.Text.Json.DateTimeConverter.slnx
+dotnet format style Scarlet.System.Text.Json.DateTimeConverter.slnx
 ```
 
 ### Source Generator Warning in Compatibility Tests
