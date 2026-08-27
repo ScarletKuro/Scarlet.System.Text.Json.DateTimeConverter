@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj" />
+  <Project Path="Scarlet.System.Text.Json.DateTimeConverter/Scarlet.System.Text.Json.DateTimeConverter.csproj" />
+</Solution>

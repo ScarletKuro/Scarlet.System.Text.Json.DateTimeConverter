@@ -41,10 +41,10 @@ Scarlet.System.Text.Json.DateTimeConverter/
 ### Restore, Build, Test, Pack
 
 ```bash
-dotnet restore src/Scarlet.System.Text.Json.DateTimeConverter.sln
-dotnet format whitespace src/Scarlet.System.Text.Json.DateTimeConverter.sln --verify-no-changes
-dotnet format style src/Scarlet.System.Text.Json.DateTimeConverter.sln --verify-no-changes
-dotnet build src/Scarlet.System.Text.Json.DateTimeConverter.sln -c Release --no-restore
+dotnet restore src/Scarlet.System.Text.Json.DateTimeConverter.slnx
+dotnet format whitespace src/Scarlet.System.Text.Json.DateTimeConverter.slnx --verify-no-changes
+dotnet format style src/Scarlet.System.Text.Json.DateTimeConverter.slnx --verify-no-changes
+dotnet build src/Scarlet.System.Text.Json.DateTimeConverter.slnx -c Release
 dotnet test src/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release --no-build
 dotnet pack src/Scarlet.System.Text.Json.DateTimeConverter/Scarlet.System.Text.Json.DateTimeConverter.csproj -c Release --no-build -o artifacts/packages
 ```
@@ -167,8 +167,8 @@ git fetch --unshallow
 ### Formatting Fails
 
 ```bash
-dotnet format whitespace src/Scarlet.System.Text.Json.DateTimeConverter.sln
-dotnet format style src/Scarlet.System.Text.Json.DateTimeConverter.sln
+dotnet format whitespace src/Scarlet.System.Text.Json.DateTimeConverter.slnx
+dotnet format style src/Scarlet.System.Text.Json.DateTimeConverter.slnx
 ```
 
 ### Source Generator Warning in Compatibility Tests

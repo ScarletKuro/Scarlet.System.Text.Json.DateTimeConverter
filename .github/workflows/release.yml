@@ -32,15 +32,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('version.json', '**/*.csproj', '**/*.props', '**/*.targets', '**/*.sln') }}
+          key: ${{ runner.os }}-nuget-${{ hashFiles('version.json', '**/*.csproj', '**/*.props', '**/*.targets', '**/*.slnx') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
 
       - name: Restore
-        run: dotnet restore src/Scarlet.System.Text.Json.DateTimeConverter.sln
+        run: dotnet restore src/Scarlet.System.Text.Json.DateTimeConverter.slnx
 
       - name: Build
-        run: dotnet build src/Scarlet.System.Text.Json.DateTimeConverter.sln -c Release --no-restore
+        run: dotnet build src/Scarlet.System.Text.Json.DateTimeConverter.slnx -c Release
 
       - name: Pack
         run: dotnet pack src/Scarlet.System.Text.Json.DateTimeConverter/Scarlet.System.Text.Json.DateTimeConverter.csproj -c Release --no-build -o artifacts/packages
