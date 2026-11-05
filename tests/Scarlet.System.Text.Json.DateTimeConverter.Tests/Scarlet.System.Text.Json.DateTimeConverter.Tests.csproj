@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -9,29 +10,32 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(NativeAotTests)' == 'true'">
+    <PublishAot>true</PublishAot>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    <IlcTreatWarningsAsErrors>true</IlcTreatWarningsAsErrors>
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+    <DefineConstants>$(DefineConstants);NATIVE_AOT_TESTS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(NativeAotTests)' == 'true'">
+    <!-- These tests intentionally exercise reflection-based serialization. -->
+    <Compile Remove="ReflectionBasedTests*.cs" />
+  </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.0.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.msbuild" Version="6.0.4">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-    <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="JunitXml.TestLogger" Version="7.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="xunit.v3.aot" Version="4.0.2" />
+  </ItemGroup>
+
+  <!-- Coverage is collected from the managed run; the native binary is published without a collector. -->
+  <ItemGroup Condition="'$(NativeAotTests)' != 'true'">
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.12.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Scarlet.System.Text.Json.DateTimeConverter\Scarlet.System.Text.Json.DateTimeConverter.csproj" />
+    <!-- Root the whole library so AOT publish analyzes every method, not only the ones tests touch. -->
+    <TrimmerRootAssembly Include="Scarlet.System.Text.Json.DateTimeConverter" />
   </ItemGroup>
 
   <ItemGroup>

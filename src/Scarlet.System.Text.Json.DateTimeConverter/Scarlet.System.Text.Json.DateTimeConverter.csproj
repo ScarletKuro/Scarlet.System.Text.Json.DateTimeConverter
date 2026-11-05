@@ -49,16 +49,6 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Include="..\..\version.json">
-      <Pack>False</Pack>
-    </None>
-  </ItemGroup> 
-
-  <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

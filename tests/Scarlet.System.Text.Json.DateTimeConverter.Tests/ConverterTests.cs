@@ -21,7 +21,7 @@ public class ConverterTests
         var date = new DateTime(2023, 10, 15, 14, 30, 45, DateTimeKind.Utc);
 
         // Act
-        var json = JsonSerializer.Serialize(date, options);
+        var json = TestJson.Serialize(date, options);
 
         // Assert
         Assert.Equal("\"2023-10-15\"", json);
@@ -38,7 +38,7 @@ public class ConverterTests
         var json = "\"10/15/2023\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTime>(json, options);
+        var result = TestJson.Deserialize<DateTime>(json, options);
 
         // Assert
         Assert.Equal(new DateTime(2023, 10, 15), result);
@@ -56,7 +56,7 @@ public class ConverterTests
         var json = "\"2023-10-15T14:30:45Z\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTime>(json, options);
+        var result = TestJson.Deserialize<DateTime>(json, options);
 
         // Assert - Should fallback to reader.GetDateTime()
         Assert.Equal(new DateTime(2023, 10, 15, 14, 30, 45, DateTimeKind.Utc), result);
@@ -73,7 +73,7 @@ public class ConverterTests
         var json = "\"2023-10-15T14:30:45\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTime>(json, options);
+        var result = TestJson.Deserialize<DateTime>(json, options);
 
         // Assert
         Assert.Equal(new DateTime(2023, 10, 15, 14, 30, 45), result);
@@ -90,8 +90,8 @@ public class ConverterTests
         var original = new DateTime(2023, 10, 15, 14, 30, 45, 123, DateTimeKind.Utc);
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<DateTime>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<DateTime>(json, options);
 
         // Assert
         Assert.Equal(original, result);
@@ -112,7 +112,7 @@ public class ConverterTests
         DateTime? date = new DateTime(2023, 10, 15, 14, 30, 45, DateTimeKind.Utc);
 
         // Act
-        var json = JsonSerializer.Serialize(date, options);
+        var json = TestJson.Serialize(date, options);
 
         // Assert
         Assert.Equal("\"2023/10/15\"", json);
@@ -129,7 +129,7 @@ public class ConverterTests
         DateTime? date = null;
 
         // Act
-        var json = JsonSerializer.Serialize(date, options);
+        var json = TestJson.Serialize(date, options);
 
         // Assert
         Assert.Equal("null", json);
@@ -146,7 +146,7 @@ public class ConverterTests
         var json = "\"15.10.2023\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTime?>(json, options);
+        var result = TestJson.Deserialize<DateTime?>(json, options);
 
         // Assert
         Assert.NotNull(result);
@@ -164,7 +164,7 @@ public class ConverterTests
         var json = "null";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTime?>(json, options);
+        var result = TestJson.Deserialize<DateTime?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -181,7 +181,7 @@ public class ConverterTests
         var json = "\"invalid-date\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTime?>(json, options);
+        var result = TestJson.Deserialize<DateTime?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -198,8 +198,8 @@ public class ConverterTests
         DateTime? original = new DateTime(2023, 10, 15, 14, 30, 45, DateTimeKind.Utc);
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<DateTime?>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<DateTime?>(json, options);
 
         // Assert
         Assert.Equal(original, result);
@@ -216,8 +216,8 @@ public class ConverterTests
         DateTime? original = null;
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<DateTime?>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<DateTime?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -238,7 +238,7 @@ public class ConverterTests
         var date = new DateTimeOffset(2023, 10, 15, 14, 30, 45, 123, TimeSpan.Zero);
 
         // Act
-        var json = JsonSerializer.Serialize(date, options);
+        var json = TestJson.Serialize(date, options);
 
         // Assert
         Assert.Equal("\"2023-10-15T14:30:45.123Z\"", json);
@@ -255,7 +255,7 @@ public class ConverterTests
         var json = "\"2023-10-15T14:30:45.123Z\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTimeOffset>(json, options);
+        var result = TestJson.Deserialize<DateTimeOffset>(json, options);
 
         // Assert
         Assert.Equal(new DateTimeOffset(2023, 10, 15, 14, 30, 45, 123, TimeSpan.Zero), result);
@@ -273,7 +273,7 @@ public class ConverterTests
         var json = "\"2023-10-15T14:30:45+00:00\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTimeOffset>(json, options);
+        var result = TestJson.Deserialize<DateTimeOffset>(json, options);
 
         // Assert - Should fallback to reader.GetDateTimeOffset()
         Assert.Equal(new DateTimeOffset(2023, 10, 15, 14, 30, 45, TimeSpan.Zero), result);
@@ -290,8 +290,8 @@ public class ConverterTests
         var original = new DateTimeOffset(2023, 10, 15, 14, 30, 45, TimeSpan.FromHours(5));
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<DateTimeOffset>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<DateTimeOffset>(json, options);
 
         // Assert
         Assert.Equal(original, result);
@@ -312,7 +312,7 @@ public class ConverterTests
         DateTimeOffset? date = new DateTimeOffset(2023, 10, 15, 14, 30, 45, 123, TimeSpan.Zero);
 
         // Act
-        var json = JsonSerializer.Serialize(date, options);
+        var json = TestJson.Serialize(date, options);
 
         // Assert
         Assert.Equal("\"2023-10-15T14:30:45.123Z\"", json);
@@ -329,7 +329,7 @@ public class ConverterTests
         DateTimeOffset? date = null;
 
         // Act
-        var json = JsonSerializer.Serialize(date, options);
+        var json = TestJson.Serialize(date, options);
 
         // Assert
         Assert.Equal("null", json);
@@ -346,7 +346,7 @@ public class ConverterTests
         var json = "\"2023-10-15T14:30:45.123Z\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTimeOffset?>(json, options);
+        var result = TestJson.Deserialize<DateTimeOffset?>(json, options);
 
         // Assert
         Assert.NotNull(result);
@@ -364,7 +364,7 @@ public class ConverterTests
         var json = "null";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTimeOffset?>(json, options);
+        var result = TestJson.Deserialize<DateTimeOffset?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -381,7 +381,7 @@ public class ConverterTests
         var json = "\"invalid-date\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateTimeOffset?>(json, options);
+        var result = TestJson.Deserialize<DateTimeOffset?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -398,8 +398,8 @@ public class ConverterTests
         DateTimeOffset? original = new DateTimeOffset(2023, 10, 15, 14, 30, 45, TimeSpan.FromHours(3));
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<DateTimeOffset?>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<DateTimeOffset?>(json, options);
 
         // Assert
         Assert.Equal(original, result);
@@ -416,8 +416,8 @@ public class ConverterTests
         DateTimeOffset? original = null;
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<DateTimeOffset?>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<DateTimeOffset?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -438,7 +438,7 @@ public class ConverterTests
         var date = new DateOnly(2023, 10, 15);
 
         // Act
-        var json = JsonSerializer.Serialize(date, options);
+        var json = TestJson.Serialize(date, options);
 
         // Assert
         Assert.Equal("\"10/15/2023\"", json);
@@ -455,7 +455,7 @@ public class ConverterTests
         var json = "\"10/15/2023\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateOnly>(json, options);
+        var result = TestJson.Deserialize<DateOnly>(json, options);
 
         // Assert
         Assert.Equal(new DateOnly(2023, 10, 15), result);
@@ -473,7 +473,7 @@ public class ConverterTests
         var json = "\"2023-10-15\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateOnly>(json, options);
+        var result = TestJson.Deserialize<DateOnly>(json, options);
 
         // Assert - Should fallback to DateOnly.FromDateTime(reader.GetDateTime())
         Assert.Equal(new DateOnly(2023, 10, 15), result);
@@ -490,7 +490,7 @@ public class ConverterTests
         var json = "\"invalid-date-format\"";
 
         // Act & Assert
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DateOnly>(json, options));
+        Assert.Throws<JsonException>(() => TestJson.Deserialize<DateOnly>(json, options));
     }
 
     [Fact]
@@ -504,8 +504,8 @@ public class ConverterTests
         var original = new DateOnly(2023, 10, 15);
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<DateOnly>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<DateOnly>(json, options);
 
         // Assert
         Assert.Equal(original, result);
@@ -526,7 +526,7 @@ public class ConverterTests
         DateOnly? date = new DateOnly(2023, 10, 15);
 
         // Act
-        var json = JsonSerializer.Serialize(date, options);
+        var json = TestJson.Serialize(date, options);
 
         // Assert
         Assert.Equal("\"10/15/2023\"", json);
@@ -543,7 +543,7 @@ public class ConverterTests
         DateOnly? date = null;
 
         // Act
-        var json = JsonSerializer.Serialize(date, options);
+        var json = TestJson.Serialize(date, options);
 
         // Assert
         Assert.Equal("null", json);
@@ -560,7 +560,7 @@ public class ConverterTests
         var json = "\"10/15/2023\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateOnly?>(json, options);
+        var result = TestJson.Deserialize<DateOnly?>(json, options);
 
         // Assert
         Assert.NotNull(result);
@@ -578,7 +578,7 @@ public class ConverterTests
         var json = "null";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateOnly?>(json, options);
+        var result = TestJson.Deserialize<DateOnly?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -595,7 +595,7 @@ public class ConverterTests
         var json = "\"invalid-date\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<DateOnly?>(json, options);
+        var result = TestJson.Deserialize<DateOnly?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -612,8 +612,8 @@ public class ConverterTests
         DateOnly? original = new DateOnly(2023, 10, 15);
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<DateOnly?>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<DateOnly?>(json, options);
 
         // Assert
         Assert.Equal(original, result);
@@ -630,8 +630,8 @@ public class ConverterTests
         DateOnly? original = null;
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<DateOnly?>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<DateOnly?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -652,7 +652,7 @@ public class ConverterTests
         var time = new TimeOnly(14, 30, 45);
 
         // Act
-        var json = JsonSerializer.Serialize(time, options);
+        var json = TestJson.Serialize(time, options);
 
         // Assert
         Assert.Equal("\"14:30:45\"", json);
@@ -669,7 +669,7 @@ public class ConverterTests
         var json = "\"14:30:45\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<TimeOnly>(json, options);
+        var result = TestJson.Deserialize<TimeOnly>(json, options);
 
         // Assert
         Assert.Equal(new TimeOnly(14, 30, 45), result);
@@ -687,7 +687,7 @@ public class ConverterTests
         var json = "\"2023-10-15T14:30:45Z\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<TimeOnly>(json, options);
+        var result = TestJson.Deserialize<TimeOnly>(json, options);
 
         // Assert - Should fallback to TimeOnly.FromDateTime(reader.GetDateTime())
         Assert.Equal(new TimeOnly(14, 30, 45), result);
@@ -704,7 +704,7 @@ public class ConverterTests
         var json = "\"invalid-time-format\"";
 
         // Act & Assert
-        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<TimeOnly>(json, options));
+        Assert.Throws<JsonException>(() => TestJson.Deserialize<TimeOnly>(json, options));
     }
 
     [Fact]
@@ -718,8 +718,8 @@ public class ConverterTests
         var original = new TimeOnly(14, 30, 45, 123);
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<TimeOnly>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<TimeOnly>(json, options);
 
         // Assert
         Assert.Equal(original, result);
@@ -740,7 +740,7 @@ public class ConverterTests
         TimeOnly? time = new TimeOnly(14, 30, 45);
 
         // Act
-        var json = JsonSerializer.Serialize(time, options);
+        var json = TestJson.Serialize(time, options);
 
         // Assert
         Assert.Equal("\"14:30:45\"", json);
@@ -757,7 +757,7 @@ public class ConverterTests
         TimeOnly? time = null;
 
         // Act
-        var json = JsonSerializer.Serialize(time, options);
+        var json = TestJson.Serialize(time, options);
 
         // Assert
         Assert.Equal("null", json);
@@ -774,7 +774,7 @@ public class ConverterTests
         var json = "\"14:30:45\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<TimeOnly?>(json, options);
+        var result = TestJson.Deserialize<TimeOnly?>(json, options);
 
         // Assert
         Assert.NotNull(result);
@@ -792,7 +792,7 @@ public class ConverterTests
         var json = "null";
 
         // Act
-        var result = JsonSerializer.Deserialize<TimeOnly?>(json, options);
+        var result = TestJson.Deserialize<TimeOnly?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -809,7 +809,7 @@ public class ConverterTests
         var json = "\"invalid-time\"";
 
         // Act
-        var result = JsonSerializer.Deserialize<TimeOnly?>(json, options);
+        var result = TestJson.Deserialize<TimeOnly?>(json, options);
 
         // Assert
         Assert.Null(result);
@@ -826,8 +826,8 @@ public class ConverterTests
         TimeOnly? original = new TimeOnly(14, 30, 45, 123);
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<TimeOnly?>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<TimeOnly?>(json, options);
 
         // Assert
         Assert.Equal(original, result);
@@ -844,8 +844,8 @@ public class ConverterTests
         TimeOnly? original = null;
 
         // Act
-        var json = JsonSerializer.Serialize(original, options);
-        var result = JsonSerializer.Deserialize<TimeOnly?>(json, options);
+        var json = TestJson.Serialize(original, options);
+        var result = TestJson.Deserialize<TimeOnly?>(json, options);
 
         // Assert
         Assert.Null(result);

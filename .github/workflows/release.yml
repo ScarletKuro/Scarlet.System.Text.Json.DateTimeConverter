@@ -3,56 +3,78 @@ name: release
 on:
   push:
     tags:
-      - "*.*.*"
+      # Matches SemVer release tags: 1.0.0, 1.1.0-preview.1, 1.1.0-rc.1, etc. The tag is the package version.
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
 
 jobs:
-  publish:
-    name: publish
+  version:
+    name: Version from tag
     runs-on: ubuntu-latest
-
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Validate tag format
+      - name: Extract version from tag
+        id: get_version
+        shell: bash
         run: |
-          if [[ ! "${GITHUB_REF_NAME}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Tag '${GITHUB_REF_NAME}' is not a supported release tag."
+          set -euo pipefail
+
+          version="$GITHUB_REF_NAME"
+
+          if [[ ! "$version" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' is not a valid SemVer package version. Use 1.0.0 or 1.1.0-preview.1."
             exit 1
           fi
 
+          # The assembly is not strong-named, so the SDK's defaults are fine: assembly and file versions are
+          # derived from the package version (major.minor.patch.0).
+          echo "version=$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  # Nothing is published unless the full test matrix, NativeAOT included, passes on the tagged commit.
+  test:
+    needs: version
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+
+  publish:
+    name: Publish release packages
+    needs: [version, test]
+    runs-on: ubuntu-latest
+    env:
+      VERSION_PROPERTIES: -p:Version=${{ needs.version.outputs.version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('version.json', '**/*.csproj', '**/*.props', '**/*.targets', '**/*.slnx') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
 
       - name: Restore
         run: dotnet restore Scarlet.System.Text.Json.DateTimeConverter.slnx
 
       - name: Build
-        run: dotnet build Scarlet.System.Text.Json.DateTimeConverter.slnx -c Release --no-restore
+        run: dotnet build Scarlet.System.Text.Json.DateTimeConverter.slnx -c Release --no-restore ${{ env.VERSION_PROPERTIES }}
 
       - name: Pack
-        run: dotnet pack src/Scarlet.System.Text.Json.DateTimeConverter/Scarlet.System.Text.Json.DateTimeConverter.csproj -c Release --no-build -o artifacts/packages
+        run: dotnet pack src/Scarlet.System.Text.Json.DateTimeConverter/Scarlet.System.Text.Json.DateTimeConverter.csproj -c Release --no-build -o artifacts/packages ${{ env.VERSION_PROPERTIES }}
 
+      # Pushing the .nupkg also pushes the matching .snupkg symbol package.
       - name: Publish to NuGet.org
         run: dotnet nuget push "artifacts/packages/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET_KEY }}" --skip-duplicate
 
       - name: Publish to GitHub Packages
         run: dotnet nuget push "artifacts/packages/*.nupkg" --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate
 
-      - name: Upload packages artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload packages
+        uses: actions/upload-artifact@v7
         with:
           name: packages
           path: artifacts/packages

@@ -1,0 +1,76 @@
+name: test
+
+# Reusable: called by continuous.yml (branch pushes) and release.yml (before publishing).
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Test
+    # Linux only: the library has no OS-specific code, and the NativeAOT trim and AOT analysis is the same on every
+    # platform. Windows is exercised by local development.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore Scarlet.System.Text.Json.DateTimeConverter.slnx
+
+      - name: Verify whitespace format
+        run: dotnet format whitespace Scarlet.System.Text.Json.DateTimeConverter.slnx --verify-no-changes
+
+      - name: Verify style format
+        run: dotnet format style Scarlet.System.Text.Json.DateTimeConverter.slnx --verify-no-changes
+
+      - name: Build
+        run: dotnet build Scarlet.System.Text.Json.DateTimeConverter.slnx -c Release --no-restore
+
+      # Microsoft Code Coverage runs as a Microsoft.Testing.Platform extension (global.json selects the platform).
+      - name: Test
+        run: >
+          dotnet test --project tests/Scarlet.System.Text.Json.DateTimeConverter.Tests -c Release --no-build
+          --coverage --coverage-output-format cobertura
+          --results-directory ./TestResults
+
+      # The reports are named <guid>.cobertura.xml, which the Codecov CLI does not pick up
+      # (https://github.com/codecov/codecov-cli/issues/795), so they are copied under plain sequential names.
+      - name: Collect coverage reports
+        if: always()
+        run: |
+          mkdir -p coverage
+          i=0
+          for f in TestResults/*.cobertura.xml; do
+            [ -e "$f" ] || continue
+            i=$((i + 1))
+            cp "$f" "coverage/coverage-$i.cobertura.xml"
+          done
+          test "$i" -gt 0
+          ls -l coverage
+
+      # The source-generator, resolver and converter tests, compiled with NativeAOT with serializer reflection disabled
+      # and trim/AOT warnings treated as errors. The reflection-based tests are excluded from this build.
+      - name: Publish NativeAOT tests
+        run: >
+          dotnet publish tests/Scarlet.System.Text.Json.DateTimeConverter.Tests -c Release -r linux-x64
+          -p:NativeAotTests=true -o artifacts/aot
+
+      - name: Run NativeAOT tests
+        run: ./artifacts/aot/Scarlet.System.Text.Json.DateTimeConverter.Tests
+
+      # Not fatal: a Codecov outage must not block a release (release.yml runs this workflow).
+      - name: Upload coverage to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/coverage-*.cobertura.xml
+          fail_ci_if_error: false

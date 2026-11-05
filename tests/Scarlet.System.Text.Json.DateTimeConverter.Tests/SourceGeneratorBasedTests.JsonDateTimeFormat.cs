@@ -39,8 +39,8 @@ public partial class SourceGeneratorBasedTests
                                     """;
 
         // Act
-        var json = JsonSerializer.Serialize(originalModel, sourceGenOptions);
-        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorModelWithAttribute>(json, sourceGenOptions);
+        var json = TestJson.Serialize(originalModel, sourceGenOptions);
+        var deserializedModel = TestJson.Deserialize<SourceGeneratorModelWithAttribute>(json, sourceGenOptions);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -89,8 +89,8 @@ public partial class SourceGeneratorBasedTests
                                     """;
 
         // Act
-        var json = JsonSerializer.Serialize(originalModel, sourceGenOptions);
-        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorModelWithAttribute>(json, sourceGenOptions);
+        var json = TestJson.Serialize(originalModel, sourceGenOptions);
+        var deserializedModel = TestJson.Deserialize<SourceGeneratorModelWithAttribute>(json, sourceGenOptions);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -187,8 +187,8 @@ public partial class SourceGeneratorBasedTests
                                     """;
 
         // Act
-        var json = JsonSerializer.Serialize(originalModel, sourceGenOptions);
-        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorModelWithAttribute>(json, sourceGenOptions);
+        var json = TestJson.Serialize(originalModel, sourceGenOptions);
+        var deserializedModel = TestJson.Deserialize<SourceGeneratorModelWithAttribute>(json, sourceGenOptions);
 
         // Assert
         Assert.NotNull(deserializedModel);
@@ -238,8 +238,8 @@ public partial class SourceGeneratorBasedTests
                                     """;
 
         // Act
-        var json = JsonSerializer.Serialize(originalModel, sourceGenOptions);
-        var deserializedModel = JsonSerializer.Deserialize<SourceGeneratorModelWithAttribute>(json, sourceGenOptions);
+        var json = TestJson.Serialize(originalModel, sourceGenOptions);
+        var deserializedModel = TestJson.Deserialize<SourceGeneratorModelWithAttribute>(json, sourceGenOptions);
 
         // Assert
         Assert.NotNull(deserializedModel);

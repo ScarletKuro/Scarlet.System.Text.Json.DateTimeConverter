@@ -21,13 +21,15 @@ Scarlet.System.Text.Json.DateTimeConverter/
 ├── .github/
 │   └── workflows/
 │       ├── continuous.yml
-│       └── release.yml
+│       ├── release.yml
+│       └── test.yml
 ├── src/
-│   ├── Scarlet.System.Text.Json.DateTimeConverter/
+│   └── Scarlet.System.Text.Json.DateTimeConverter/
+├── tests/
 │   └── Scarlet.System.Text.Json.DateTimeConverter.Tests/
+├── global.json
 ├── README.md
 ├── LICENSE
-├── version.json
 └── icon.png
 ```
 
@@ -45,7 +47,7 @@ dotnet restore Scarlet.System.Text.Json.DateTimeConverter.slnx
 dotnet format whitespace Scarlet.System.Text.Json.DateTimeConverter.slnx --verify-no-changes
 dotnet format style Scarlet.System.Text.Json.DateTimeConverter.slnx --verify-no-changes
 dotnet build Scarlet.System.Text.Json.DateTimeConverter.slnx -c Release --no-restore
-dotnet test tests/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release --no-build
+dotnet test --project tests/Scarlet.System.Text.Json.DateTimeConverter.Tests -c Release --no-build
 dotnet pack src/Scarlet.System.Text.Json.DateTimeConverter/Scarlet.System.Text.Json.DateTimeConverter.csproj -c Release --no-build -o artifacts/packages
 ```
 
@@ -54,28 +56,43 @@ dotnet pack src/Scarlet.System.Text.Json.DateTimeConverter/Scarlet.System.Text.J
 Use the same outputs as CI when validating locally:
 
 ```bash
-dotnet test tests/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release --no-build -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura -p:CoverletOutput=../../artifacts/coverage/Scarlet.System.Text.Json.DateTimeConverter.Tests.xml --logger "junit;LogFilePath=../../artifacts/test-results/Scarlet.System.Text.Json.DateTimeConverter.Tests.xml"
+dotnet test --project tests/Scarlet.System.Text.Json.DateTimeConverter.Tests -c Release --no-build --coverage --coverage-output-format cobertura --results-directory ./TestResults
 ```
+
+Coverage is collected by Microsoft Code Coverage, which runs as a Microsoft.Testing.Platform extension. Reports are written to `TestResults/<guid>.cobertura.xml`; CI copies them to `artifacts/coverage`.
 
 Expected artifact folders:
 
-- `artifacts/test-results`
+- `TestResults`
 - `artifacts/coverage`
 - `artifacts/packages`
 
 ## Test Guidance
 
+Tests use xUnit v3 (`xunit.v3.aot`) on Microsoft.Testing.Platform, selected by `global.json`. The test project is an executable.
+
 ### Run All Tests
 
 ```bash
-dotnet test tests/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release
+dotnet test --project tests/Scarlet.System.Text.Json.DateTimeConverter.Tests -c Release
 ```
 
 ### Run a Specific Test
 
 ```bash
-dotnet test tests/Scarlet.System.Text.Json.DateTimeConverter.Tests/Scarlet.System.Text.Json.DateTimeConverter.Tests.csproj -c Release --filter "FullyQualifiedName~ReflectionBased_DateTime_WithAttribute"
+dotnet test --project tests/Scarlet.System.Text.Json.DateTimeConverter.Tests -c Release --filter-method "*ReflectionBased_DateTime_WithAttribute*"
 ```
+
+### Run Tests Under NativeAOT
+
+The same tests, minus the reflection-based ones (`ReflectionBasedTests*.cs`), compiled with NativeAOT, serializer reflection disabled (`JsonSerializerIsReflectionEnabledByDefault=false`) and trim/AOT warnings treated as errors:
+
+```bash
+dotnet publish tests/Scarlet.System.Text.Json.DateTimeConverter.Tests -c Release -r linux-x64 -p:NativeAotTests=true -o artifacts/aot
+./artifacts/aot/Scarlet.System.Text.Json.DateTimeConverter.Tests
+```
+
+On Windows use `-r win-x64` (requires the Visual Studio C++ build tools). Test code serializes through `TestJson`, which resolves `JsonTypeInfo<T>` from the options: reflection-based under JIT when no resolver is set, `PrimitiveJsonSerializerContext` under NativeAOT.
 
 ### Test Coverage Focus
 
@@ -114,55 +131,53 @@ The main package targets:
 
 ## Release Process
 
-Versioning is handled by [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning).
+The release tag is the package version. Builds without `-p:Version` get the SDK default (`1.0.0`), and branch CI packages are versioned `0.0.0-ci.<run number>`.
 
 To publish a release:
 
-1. Update `version.json` if needed.
-2. Create a version tag such as `1.2.0`.
-3. Push the tag to GitHub.
-4. GitHub Actions runs `.github/workflows/release.yml`.
-5. The workflow builds, packs, publishes `.nupkg` files to NuGet.org and GitHub Packages, and uploads the package artifacts.
+1. Create a SemVer tag such as `1.2.0` or `1.3.0-preview.1` (no `v` prefix).
+2. Push the tag to GitHub.
+3. GitHub Actions runs `.github/workflows/release.yml`.
+4. The workflow validates the tag, then runs the full test workflow (NativeAOT included) on the tagged commit; only if it passes does it build, pack, publish `.nupkg` files to NuGet.org and GitHub Packages, and upload the package artifacts.
 
 ### Required Secrets
 
 - `NUGET_KEY` for NuGet.org publishing
 - `GITHUB_TOKEN` for GitHub Packages publishing
-- `CODECOV_TOKEN` for CI coverage and test-result uploads
+- `CODECOV_TOKEN` for CI coverage uploads
 
 ## CI/CD
 
-### Continuous Integration
+### Test Workflow
 
-`.github/workflows/continuous.yml` runs on every push and performs:
+`.github/workflows/test.yml` is a reusable workflow (`workflow_call`), called by both `continuous.yml` and `release.yml`. It performs:
 
 - Restore
 - Formatting verification
 - Release build
-- Test execution with JUnit results
-- Cobertura coverage generation
-- NuGet package creation
-- Codecov uploads
+- Test execution with Cobertura coverage (Microsoft Code Coverage)
+- NativeAOT test publish and run
+- Codecov upload (not fatal)
+
+### Continuous Integration
+
+`.github/workflows/continuous.yml` runs on every branch push (tags are handled by `release.yml`) and performs:
+
+- The test workflow
+- In parallel: restore, Release build, NuGet package creation and package artifact upload
 
 ### Release Workflow
 
 `.github/workflows/release.yml` runs on version tag pushes matching `*.*.*` and performs:
 
-- Restore
-- Release build
-- NuGet package creation
+- Tag format validation
+- The test workflow, which must pass before anything is published
+- Restore, Release build and NuGet package creation
 - Publish to NuGet.org
 - Publish to GitHub Packages
+- Package artifact upload
 
 ## Troubleshooting
-
-### Versioning Fails in CI
-
-If version height calculation fails locally because of shallow history:
-
-```bash
-git fetch --unshallow
-```
 
 ### Formatting Fails
 
@@ -181,4 +196,3 @@ dotnet format style Scarlet.System.Text.Json.DateTimeConverter.slnx
 - [Custom Converters](https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/converters-how-to)
 - [Source Generation](https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/source-generation)
 - [Contract Customization (.NET 9+)](https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/custom-contracts)
-- [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning)

@@ -102,7 +102,7 @@ public class DateTimeConverterResolverTests
         };
 
         // Act
-        var json = JsonSerializer.Serialize(model, options);
+        var json = TestJson.Serialize(model, options);
 
         // Assert
         // Should use default formats since resolver has no source with attributes
