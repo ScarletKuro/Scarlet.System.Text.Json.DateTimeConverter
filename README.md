@@ -19,6 +19,7 @@ A flexible and powerful library for customizing `DateTime`, `DateTimeOffset`, `D
   - [Source Generator with Attribute and Resolver (.NET 9+)](#source-generator-with-attribute-and-resolver-net-9)
 - [Available Components](#available-components)
 - [When to Use What](#when-to-use-what)
+- [Native AOT and Trimming](#native-aot-and-trimming)
 - [Quirks and Limitations](#quirks-and-limitations)
 - [Supported Types](#supported-types)
 - [License](#license)
@@ -130,9 +131,9 @@ var deserializedOrder = JsonSerializer.Deserialize<Order>(json);
 - Easy to use and understand
 
 **❌ Cons:**
-- Only works with reflection-based serialization
-- Produces SYSLIB1223 warning with source generators
-- No AOT (Ahead-of-Time) compilation support
+- On its own, only works with reflection-based serialization, which is not trimming- or Native AOT-safe
+- Ignored by the System.Text.Json source generator, which reports SYSLIB1223
+- Source generator and Native AOT support requires .NET 9+ and `DateTimeConverterResolver` (see [Option B](#option-b-jsondatetimeconverterattribute-backward-compatible---has-warnings)), and still produces SYSLIB1223
 
 ---
 
@@ -306,9 +307,11 @@ The resolver still works, but the System.Text.Json source generator will emit wa
 **✅ Pros:**
 - Works with existing code using `JsonDateTimeConverterAttribute`
 - Backward compatible
+- AOT-friendly: the resolver applies the attribute without reflection-based serialization
 
 **❌ Cons:**
 - Produces SYSLIB1223 warnings during build
+- The warnings can't be suppressed per file or per type (`#pragma`, `[SuppressMessage]` and per-file `.editorconfig` severity have no effect); only a project-wide `<NoWarn>SYSLIB1223</NoWarn>` silences them
 - May confuse users about the warnings
 
 ---
@@ -386,6 +389,22 @@ var options = new JsonSerializerOptions { TypeInfoResolver = resolver };
 
 ---
 
+## Native AOT and Trimming
+
+The package is marked `IsAotCompatible` for .NET 8 and later, and the library itself produces no trimming or AOT analysis warnings. Whether your serialization is AOT-safe depends on how you apply the formats:
+
+| Approach | Native AOT / trimming |
+|----------|:---------------------:|
+| `JsonDateTimeFormatConverter<T>` + source generator | ✅ |
+| `JsonDateTimeFormatAttribute` + `DateTimeConverterResolver` (.NET 9+) | ✅ |
+| `JsonDateTimeConverterAttribute` + `DateTimeConverterResolver` (.NET 9+) | ✅ (SYSLIB1223 warnings) |
+| `JsonDateTimeConverterAttribute` with reflection-based serialization | ❌ reflection-based System.Text.Json is not AOT-safe; `JsonSerializer` reports IL2026/IL3050 |
+| `JsonDateTimeConverterAttribute` + source generator without the resolver | ❌ the attribute is ignored (SYSLIB1223) |
+
+The supported scenarios are covered by the test suite, which also runs as a Native AOT binary with reflection-based serialization disabled.
+
+---
+
 ## Quirks and Limitations
 
 ### Source Generator Limitations (.NET 6-8)
@@ -441,7 +460,7 @@ This is a limitation of System.Text.Json source generator not supporting constru
 
 ### Null Handling
 
-Nullable types (`DateTime?`, `DateTimeOffset?`) write `null` in JSON when the value is `null`:
+Nullable types (`DateTime?`, `DateTimeOffset?`, `DateOnly?`, `TimeOnly?`) write `null` in JSON when the value is `null`:
 
 ```json
 {
