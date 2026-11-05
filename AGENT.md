@@ -142,8 +142,8 @@ To publish a release:
 
 ### Required Secrets
 
-- `NUGET_KEY` for NuGet.org publishing
-- `GITHUB_TOKEN` for GitHub Packages publishing
+- `NUGET_USER` for NuGet.org [trusted publishing](https://learn.microsoft.com/nuget/nuget-org/trusted-publishing): the nuget.org profile name (not email) that owns the trusted publishing policy. No long-lived API key is stored; `NuGet/login` exchanges the workflow's OIDC token for a short-lived key.
+- `GITHUB_TOKEN` for GitHub Packages publishing (provided automatically; the publish job grants `packages: write`)
 - `CODECOV_TOKEN` for CI coverage uploads
 
 ## CI/CD

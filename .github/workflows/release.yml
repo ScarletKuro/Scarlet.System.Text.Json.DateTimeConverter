@@ -42,6 +42,12 @@ jobs:
     name: Publish release packages
     needs: [version, test]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Trusted publishing to NuGet.org: the OIDC token is exchanged for a short-lived API key.
+      id-token: write
+      # GitHub Packages publishing with GITHUB_TOKEN.
+      packages: write
     env:
       VERSION_PROPERTIES: -p:Version=${{ needs.version.outputs.version }}
 
@@ -66,9 +72,18 @@ jobs:
       - name: Pack
         run: dotnet pack src/Scarlet.System.Text.Json.DateTimeConverter/Scarlet.System.Text.Json.DateTimeConverter.csproj -c Release --no-build -o artifacts/packages ${{ env.VERSION_PROPERTIES }}
 
+      # Trusted publishing: exchanges the workflow's OIDC token for a short-lived NuGet API key. Requires a
+      # trusted publishing policy on nuget.org for this repository and release.yml, and the NUGET_USER secret.
+      - name: NuGet login
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       # Pushing the .nupkg also pushes the matching .snupkg symbol package.
       - name: Publish to NuGet.org
-        run: dotnet nuget push "artifacts/packages/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET_KEY }}" --skip-duplicate
+        shell: bash
+        run: dotnet nuget push "artifacts/packages/*.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" --skip-duplicate
 
       - name: Publish to GitHub Packages
         run: dotnet nuget push "artifacts/packages/*.nupkg" --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate
